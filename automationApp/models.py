@@ -41,15 +41,18 @@ class EmailFolder(models.Model):
     year_folder_id = models.CharField(max_length=255)
     month_folder_id = models.CharField(max_length=255)
     date_folder_id = models.CharField(max_length=255)
+    folder_year = models.IntegerField(default=2025)
+    folder_month = models.IntegerField(default=1)
+    folder_date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-created_at']
-        unique_together = ['email', 'email_folder_id', 'year_folder_id', 'month_folder_id', 'date_folder_id']
+        ordering = ['-folder_date']
+        unique_together = ['email', 'folder_year', 'folder_month', 'folder_date']
     
     def __str__(self):
-        return f"{self.email} - Folder Structure"
+        return f"{self.email} - {self.folder_date}"
 
 
 

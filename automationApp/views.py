@@ -216,9 +216,9 @@ def search_email_records(request):
                 'message': 'No folder records found for this email'
             }, status=200)
         
-        year_records = all_records.filter(created_at__year=current_year)
-        month_records = year_records.filter(created_at__month=current_month)
-        today_records = month_records.filter(created_at__date=current_date)
+        year_records = all_records.filter(folder_year=current_year)
+        month_records = year_records.filter(folder_month=current_month)
+        today_records = month_records.filter(folder_date=current_date)
         
         has_current_year = year_records.exists()
         has_current_month = month_records.exists()
@@ -278,11 +278,26 @@ def create_email_folder(request):
         year_folder_id = data.get('year_folder_id')
         month_folder_id = data.get('month_folder_id')
         date_folder_id = data.get('date_folder_id')
+        folder_year = data.get('folder_year')
+        folder_month = data.get('folder_month')
+        folder_date = data.get('folder_date')
         
-        if not all([email, email_folder_id, year_folder_id, month_folder_id, date_folder_id]):
+        if not all([email, email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date]):
             return JsonResponse({
                 'status': 'error',
-                'message': 'Missing required fields: email, email_folder_id, year_folder_id, month_folder_id, date_folder_id'
+                'message': 'Missing required fields: email, email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date'
+            }, status=400)
+        
+        from datetime import datetime
+        try:
+            folder_year = int(folder_year)
+            folder_month = int(folder_month)
+            if isinstance(folder_date, str):
+                folder_date = datetime.strptime(folder_date, '%Y-%m-%d').date()
+        except (ValueError, TypeError) as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Invalid date format. folder_year and folder_month must be integers, folder_date must be YYYY-MM-DD format'
             }, status=400)
         
         email_folder = EmailFolder.objects.create(
@@ -290,7 +305,10 @@ def create_email_folder(request):
             email_folder_id=email_folder_id,
             year_folder_id=year_folder_id,
             month_folder_id=month_folder_id,
-            date_folder_id=date_folder_id
+            date_folder_id=date_folder_id,
+            folder_year=folder_year,
+            folder_month=folder_month,
+            folder_date=folder_date
         )
         
         return JsonResponse({
@@ -303,6 +321,9 @@ def create_email_folder(request):
                 'year_folder_id': email_folder.year_folder_id,
                 'month_folder_id': email_folder.month_folder_id,
                 'date_folder_id': email_folder.date_folder_id,
+                'folder_year': email_folder.folder_year,
+                'folder_month': email_folder.folder_month,
+                'folder_date': email_folder.folder_date.isoformat(),
                 'created_at': email_folder.created_at.isoformat(),
                 'updated_at': email_folder.updated_at.isoformat()
             }
@@ -311,7 +332,7 @@ def create_email_folder(request):
     except IntegrityError:
         return JsonResponse({
             'status': 'error',
-            'message': 'This folder structure already exists for this email'
+            'message': 'This folder structure already exists for this email and date'
         }, status=400)
     except json.JSONDecodeError:
         return JsonResponse({

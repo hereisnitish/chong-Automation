@@ -412,6 +412,9 @@ This endpoint creates a new EmailFolder record to store the complete Google Driv
 | `year_folder_id` | string | Google Drive folder ID for the year folder | `"7g8h9i0j1k2l"` |
 | `month_folder_id` | string | Google Drive folder ID for the month folder | `"3m4n5o6p7q8r"` |
 | `date_folder_id` | string | Google Drive folder ID for the date folder | `"9s0t1u2v3w4x"` |
+| `folder_year` | integer | The actual year the folder represents | `2025` |
+| `folder_month` | integer | The actual month the folder represents (1-12) | `11` |
+| `folder_date` | string (YYYY-MM-DD) | The actual date the folder represents | `"2025-11-06"` |
 
 ### Request Examples
 
@@ -423,7 +426,10 @@ This endpoint creates a new EmailFolder record to store the complete Google Driv
   "email_folder_id": "1a2b3c4d5e6f",
   "year_folder_id": "7g8h9i0j1k2l",
   "month_folder_id": "3m4n5o6p7q8r",
-  "date_folder_id": "9s0t1u2v3w4x"
+  "date_folder_id": "9s0t1u2v3w4x",
+  "folder_year": 2025,
+  "folder_month": 11,
+  "folder_date": "2025-11-06"
 }
 ```
 
@@ -437,7 +443,10 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
     "email_folder_id": "1a2b3c4d5e6f",
     "year_folder_id": "7g8h9i0j1k2l",
     "month_folder_id": "3m4n5o6p7q8r",
-    "date_folder_id": "9s0t1u2v3w4x"
+    "date_folder_id": "9s0t1u2v3w4x",
+    "folder_year": 2025,
+    "folder_month": 11,
+    "folder_date": "2025-11-06"
   }'
 ```
 
@@ -456,6 +465,9 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
     "year_folder_id": "7g8h9i0j1k2l",
     "month_folder_id": "3m4n5o6p7q8r",
     "date_folder_id": "9s0t1u2v3w4x",
+    "folder_year": 2025,
+    "folder_month": 11,
+    "folder_date": "2025-11-06",
     "created_at": "2025-11-06T10:30:45.123456",
     "updated_at": "2025-11-06T10:30:45.123456"
   }
@@ -467,7 +479,7 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
 ```json
 {
   "status": "error",
-  "message": "Missing required fields: email, email_folder_id, year_folder_id, month_folder_id, date_folder_id"
+  "message": "Missing required fields: email, email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date"
 }
 ```
 
@@ -476,7 +488,7 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
 ```json
 {
   "status": "error",
-  "message": "This folder structure already exists for this email"
+  "message": "This folder structure already exists for this email and date"
 }
 ```
 
@@ -497,11 +509,15 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
        "email_folder_id": "{{email_folder_id}}",
        "year_folder_id": "{{year_folder_id}}",
        "month_folder_id": "{{month_folder_id}}",
-       "date_folder_id": "{{date_folder_id}}"
+       "date_folder_id": "{{date_folder_id}}",
+       "folder_year": {{formatDate(now; "YYYY")}},
+       "folder_month": {{formatDate(now; "M")}},
+       "folder_date": "{{formatDate(now; "YYYY-MM-DD")}}"
      }
      ```
 
 3. Map the Google Drive folder IDs from previous steps to the JSON fields
+4. Use Make.com's date functions to populate folder_year, folder_month, and folder_date
 
 ### Typical Make.com Workflow
 
@@ -520,12 +536,16 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
 1. **After creating new folder structure:**
    ```javascript
    // After creating folders in Google Drive
+   const currentDate = new Date();
    const response = await createEmailFolder({
      email: "user@example.com",
      email_folder_id: emailFolder.id,
      year_folder_id: yearFolder.id,
      month_folder_id: monthFolder.id,
-     date_folder_id: dateFolder.id
+     date_folder_id: dateFolder.id,
+     folder_year: currentDate.getFullYear(),
+     folder_month: currentDate.getMonth() + 1,
+     folder_date: currentDate.toISOString().split('T')[0]
    });
    console.log("Folder structure saved:", response.data.id);
    ```
@@ -534,6 +554,10 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
    ```javascript
    // Step 1: Check if folders exist
    const checkResponse = await searchEmail(email);
+   const currentDate = new Date();
+   const year = currentDate.getFullYear();
+   const month = currentDate.getMonth() + 1;
+   const dateStr = currentDate.toISOString().split('T')[0];
    
    if (!checkResponse.has_today) {
      // Step 2: Create folders in Google Drive
@@ -542,7 +566,7 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
      let monthFolderId = checkResponse.month_folder_id;
      
      // Create missing folders...
-     const dateFolderId = createGoogleDriveFolder("2025-11-06", monthFolderId);
+     const dateFolderId = createGoogleDriveFolder(dateStr, monthFolderId);
      
      // Step 3: Save to database
      await createEmailFolder({
@@ -550,7 +574,10 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
        email_folder_id: emailFolderId,
        year_folder_id: yearFolderId,
        month_folder_id: monthFolderId,
-       date_folder_id: dateFolderId
+       date_folder_id: dateFolderId,
+       folder_year: year,
+       folder_month: month,
+       folder_date: dateStr
      });
    }
    ```
@@ -559,9 +586,12 @@ curl -X POST http://your-domain.com/api/create-email-folder/ \
 
 - This endpoint does **NOT** require authentication (CSRF exempt)
 - Only accepts POST requests
-- All fields are required - you must provide all folder IDs
-- Duplicate folder structures are prevented by unique constraint
+- All fields are required - you must provide all folder IDs and date information
+- `folder_year`, `folder_month`, and `folder_date` must match the actual year/month/date the folders represent
+- Duplicate folder structures are prevented by unique constraint on email + folder_year + folder_month + folder_date
 - Folder IDs should be valid Google Drive folder IDs
+- `folder_date` must be in YYYY-MM-DD format
+- `folder_month` should be 1-12 (integer)
 - Created and updated timestamps are automatically generated
 - Returns 201 status code on successful creation
 
@@ -579,7 +609,10 @@ curl -X POST http://127.0.0.1:8000/api/create-email-folder/ \
     "email_folder_id": "test_email_folder_123",
     "year_folder_id": "test_year_folder_456",
     "month_folder_id": "test_month_folder_789",
-    "date_folder_id": "test_date_folder_012"
+    "date_folder_id": "test_date_folder_012",
+    "folder_year": 2025,
+    "folder_month": 11,
+    "folder_date": "2025-11-06"
   }'
 ```
 
