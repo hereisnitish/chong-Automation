@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .models import User, Dashboard, EmailFolder
 from django.db import IntegrityError
+from django.db.models import Q
+import requests
 import json
 
 
@@ -109,11 +111,11 @@ def create_dashboard_record(request):
         record_type = data.get('type')
         google_drive_link = data.get('google_drive_link', '')
         
-        if not all([email, phone_number, record_type]):
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Missing required fields: email, phone_number, type'
-            }, status=400)
+        # if not all([email, phone_number, record_type]):
+        #     return JsonResponse({
+        #         'status': 'error',
+        #         'message': 'Missing required fields: email, phone_number, type'
+        #     }, status=400)
         
         if record_type not in ['whatsapp', 'gmail', 'sms']:
             return JsonResponse({
@@ -184,14 +186,11 @@ def search_email_records(request):
             else:
                 data = request.POST
             email = data.get('email')
+            phone_number = data.get('phone_number')
         else:
             email = request.GET.get('email')
         
-        if not email:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Email parameter is required'
-            }, status=400)
+        
         
         from datetime import datetime
         from django.utils import timezone
@@ -201,7 +200,9 @@ def search_email_records(request):
         current_month = now.month
         current_date = now.date()
         
-        all_records = EmailFolder.objects.filter(email=email)
+
+        all_records = EmailFolder.objects.filter(Q(email=email) | Q(phone_number=phone_number))
+
         
         email_exists = all_records.exists()
         
@@ -209,6 +210,7 @@ def search_email_records(request):
             return JsonResponse({
                 'status': 'success',
                 'email': email,
+                'phone_number': phone_number,
                 'exists': False,
                 'has_current_year': False,
                 'has_current_month': False,
@@ -227,6 +229,7 @@ def search_email_records(request):
         response_data = {
             'status': 'success',
             'email': email,
+            'phone_number': phone_number,
             'exists': True,
             'has_current_year': has_current_year,
             'has_current_month': has_current_month,
@@ -281,8 +284,9 @@ def create_email_folder(request):
         folder_year = data.get('folder_year')
         folder_month = data.get('folder_month')
         folder_date = data.get('folder_date')
+        phone_number = data.get('phone_number')
         
-        if not all([email, email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date]):
+        if not all([email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date]):
             return JsonResponse({
                 'status': 'error',
                 'message': 'Missing required fields: email, email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date'
@@ -302,6 +306,7 @@ def create_email_folder(request):
         
         email_folder = EmailFolder.objects.create(
             email=email,
+            phone_number=phone_number,
             email_folder_id=email_folder_id,
             year_folder_id=year_folder_id,
             month_folder_id=month_folder_id,
@@ -344,6 +349,46 @@ def create_email_folder(request):
             'status': 'error',
             'message': str(e)
         }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_to_make_webhook(request):
+    # ✅ Extract query params
+    email = request.POST.get("email")
+    phone_number = request.POST.get("phone_number")
+
+    # ✅ Extract text fields (filename, type)
+    filename = request.POST.get("filename")
+    media_type = request.POST.get("type")
+
+    # ✅ Extract the file uploaded as binary
+    file_obj = request.FILES.get("data")
+
+    # ✅ Prepare multipart/form-data
+    files = {
+        "file": (file_obj.name, file_obj.read(), file_obj.content_type),
+    }
+
+    payload = {
+        "email": email,
+        "phone_number": phone_number,
+        "filename": filename,
+        "type": media_type
+    }
+
+    url = "https://hook.us2.make.com/43p8rg1tinkdvygclzv2e3wkjf57u9qm"
+
+    try:
+        response = requests.post(url, data=payload, files=files)
+        return JsonResponse({
+            "success": True,
+            "status_code": response.status_code,
+            "response": response.text
+        })
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
 
 
 
