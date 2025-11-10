@@ -1,0 +1,79 @@
+1. User Account System - Done
+
+        Implement user signup flow.
+
+        Capture required info as per form (name, company, email, phone, etc.).
+
+        Store user profile in database.
+
+        Add login & authentication (JWT or Bubble built-in auth).
+
+2. Dashboard Message Filters - Done
+
+        Add filters for:
+
+        Company
+
+        Year
+
+        Month
+
+        Date
+
+        Phone number
+
+        Email
+
+        Add combined filter support (multiple conditions at once).
+
+3. UI Icon Colors - Done
+
+        WhatsApp icon green.
+
+        Gmail icon white and red.
+
+        SMS icon blue.
+
+4. Dashboard Metrics -Done
+
+        Add metrics widget showing:
+
+        Total documents uploaded (Year/Month/Date/Today).
+
+        Document count by company.
+
+        Create API or workflow to fetch counts dynamically.
+
+5. Client Count - Done
+
+        Add a metric showing:
+
+        Total number of clients signed up.
+
+        New signups today/this week if needed.
+
+6. Error Tracking - Done
+
+        Implement error logs for:
+
+        Failed message fetch
+
+        Failed upload
+
+        Failed OCR
+
+        Add admin view to monitor errors.
+
+        Optional: Email/SMS alert on critical failures
+
+7. OCR Auto-Naming
+
+        Integrate OCR (Google Vision or Tesseract).
+
+        Extract keywords to generate filename format:
+
+        001_documentname_date
+
+        Auto-increment order number.
+
+        Save final filename before uploading to Drive/database.

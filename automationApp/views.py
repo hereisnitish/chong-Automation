@@ -160,7 +160,7 @@ def dashboard_view(request):
 
     total_clients = User.objects.filter(is_staff=False, is_superuser=False).count()
 
-    recent_logs = LogEntry.objects.filter(user=request.user).order_by('-created_at')[:50]
+    recent_logs = LogEntry.objects.all().order_by('-created_at')[:50]
 
     context = {
         'dashboard_records': records,
@@ -482,7 +482,50 @@ def send_to_make_webhook(request):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-
-
-
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_make_log_entry(request):
+    try:
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+        event = data.get('event')
+        message = data.get('message')
+        level = data.get('level')
+        related_model = ""
+        related_id = ""
+        user = User.objects.filter(is_superuser=True).first()
+        log_entry = LogEntry.objects.create(
+            user=user,
+            event=event,
+            message=message,
+            level=level,
+            related_model=related_model,
+            related_id=related_id
+        )
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Make log entry created successfully',
+            'data': {
+                'id': log_entry.id,
+                'event': log_entry.event,
+                'message': log_entry.message,
+                'level': log_entry.level,
+                'related_model': log_entry.related_model,
+                'related_id': log_entry.related_id,
+                'created_at': log_entry.created_at.isoformat(),
+                'updated_at': log_entry.updated_at.isoformat()
+            }
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON format'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
