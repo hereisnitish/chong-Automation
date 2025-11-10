@@ -1,246 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Automation Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        }
-        .password-strength {
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .password-strength-bar {
-            height: 100%;
-            transition: all 0.3s ease;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - Automation Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn { from {opacity:0; transform: translateY(12px)} to {opacity:1; transform: translateY(0)} }
+    .fade-in { animation: fadeIn .4s ease-out }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .glass-effect { background: rgba(255,255,255,.95); backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(31,38,135,.15); }
+    .password-strength { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .password-strength-bar { height: 100%; transition: all .3s ease; }
+    .step-dot { width: 28px; height: 28px }
+    .step-active { background: linear-gradient(90deg,#7c3aed,#6366f1); color: #fff; }
+    .step-complete { background: #10b981; color: #fff; }
+    .step-pending { background: #e5e7eb; color:#6b7280; }
+  </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 fade-in">
-        <div class="glass-effect rounded-2xl p-8 md:p-10">
-            <div class="text-center mb-8">
-                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
-                    <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900">Create Account</h2>
-                <p class="mt-2 text-sm text-gray-600">Start automating your workflows today</p>
+<body class="gradient-bg min-h-screen flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl w-full space-y-6 fade-in">
+    <div class="glass-effect rounded-2xl p-4 md:p-6">
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-4">
+        <div class="h-12 w-12 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 grid place-items-center">
+          <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Create Account</h1>
+          <p class="text-sm text-gray-500">Start automating your workflows today</p>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'success' %}bg-green-50 text-green-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+            <p class="text-sm">{{ message }}</p>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Stepper -->
+      <div class="sticky top-4 z-10 bg-white/70 backdrop-blur rounded-xl border border-gray-100 p-3 mb-5 hidden md:block">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div id="dot-1" class="step-dot rounded-full grid place-items-center step-active">1</div>
+            <span class="text-sm font-medium" id="label-1">Personal</span>
+          </div>
+          <div class="h-1 flex-1 mx-4 bg-gray-200 rounded-full overflow-hidden">
+            <div id="progress" class="h-1 w-1/3 bg-gradient-to-r from-purple-600 to-indigo-600 transition-all duration-300"></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div id="dot-2" class="step-dot rounded-full grid place-items-center step-pending">2</div>
+            <span class="text-sm font-medium" id="label-2">Company</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div id="dot-3" class="step-dot rounded-full grid place-items-center step-pending">3</div>
+            <span class="text-sm font-medium" id="label-3">Security</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form id="signup-form" class="mt-2 space-y-6" method="POST" action="{% url 'signup' %}">
+        {% csrf_token %}
+
+        <!-- Step 1: Personal -->
+        <section id="step-1" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+              <input id="first_name" name="first_name" type="text" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="John">
+            </div>
+            <div>
+              <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+              <input id="last_name" name="last_name" type="text" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Doe">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <input id="email" name="email" type="email" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="john.doe@example.com">
+            </div>
+            <div>
+              <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <input id="phone_number" name="phone_number" type="tel" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="+1 (555) 000-0000">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <input id="username" name="username" type="text" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Choose a username">
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 2: Company -->
+        <section id="step-2" class="space-y-4 hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+              <input id="company_name" name="company_name" type="text" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Acme Logistics LLC">
+            </div>
+            <div>
+                <label for="mc_number" class="block text-sm font-medium text-gray-700 mb-2">MC Number</label>
+                <input
+                  id="mc_number"
+                  name="mc_number"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="MC-\d{6,7}"
+                  title="Enter MC- followed by 6–7 digits (e.g., MC-123456)"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="MC-123456"
+                >
+                <p class="mt-1 text-xs text-gray-500">Format: <span class="font-medium">MC-</span> followed by 6–7 digits (e.g., MC-123456).</p>
+              </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="number_of_trucks" class="block text-sm font-medium text-gray-700 mb-2">Number of Trucks</label>
+              <input id="number_of_trucks" name="number_of_trucks" type="number" min="1" step="1" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="e.g., 12">
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 3: Security -->
+        <section id="step-3" class="space-y-4 hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <input id="password" name="password" type="password" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Create a strong password" onkeyup="checkPasswordStrength()">
+              <div class="password-strength">
+                <div id="strength-bar" class="password-strength-bar" style="width: 0%; background: #e5e7eb;"></div>
+              </div>
+              <p id="strength-text" class="text-xs text-gray-500 mt-1">Password strength: None</p>
             </div>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'success' %}bg-green-50 text-green-800{% else %}bg-blue-50 text-blue-800{% endif %}">
-                        <p class="text-sm">{{ message }}</p>
-                    </div>
-                {% endfor %}
-            {% endif %}
+            <div>
+              <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+              <input id="password_confirm" name="password_confirm" type="password" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Confirm your password">
+              <p id="match-hint" class="text-xs mt-1 text-gray-400">Must match your password.</p>
+            </div>
+          </div>
 
-            <form class="mt-8 space-y-5" method="POST" action="{% url 'signup' %}">
-                {% csrf_token %}
-                
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                            <input 
-                                id="first_name" 
-                                name="first_name" 
-                                type="text" 
-                                required 
-                                class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                                placeholder="John"
-                            >
-                        </div>
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="terms" name="terms" type="checkbox" required
+                class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded cursor-pointer">
+            </div>
+            <div class="ml-2 text-sm">
+              <label for="terms" class="text-gray-600 cursor-pointer">
+                I agree to the
+                <a href="#" class="text-purple-600 hover:text-purple-500 font-medium">Terms of Service</a>
+                and
+                <a href="#" class="text-purple-600 hover:text-purple-500 font-medium">Privacy Policy</a>
+              </label>
+            </div>
+          </div>
+        </section>
 
-                        <div>
-                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                            <input 
-                                id="last_name" 
-                                name="last_name" 
-                                type="text" 
-                                required 
-                                class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                                placeholder="Doe"
-                            >
-                        </div>
-                    </div>
+        <!-- Navigation Buttons -->
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" id="back-btn"
+                  class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                  disabled>
+            ← Back
+          </button>
 
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            required 
-                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                            placeholder="john.doe@example.com"
-                        >
-                    </div>
-
-                    <div>
-                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                        <input 
-                            id="phone_number" 
-                            name="phone_number" 
-                            type="tel" 
-                            required 
-                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                            placeholder="+1 (555) 000-0000"
-                        >
-                    </div>
-
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                        <input 
-                            id="username" 
-                            name="username" 
-                            type="text" 
-                            required 
-                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                            placeholder="Choose a username"
-                        >
-                    </div>
-
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input 
-                            id="password" 
-                            name="password" 
-                            type="password" 
-                            required 
-                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                            placeholder="Create a strong password"
-                            onkeyup="checkPasswordStrength()"
-                        >
-                        <div class="password-strength">
-                            <div id="strength-bar" class="password-strength-bar" style="width: 0%; background: #e5e7eb;"></div>
-                        </div>
-                        <p id="strength-text" class="text-xs text-gray-500 mt-1">Password strength: None</p>
-                    </div>
-
-                    <div>
-                        <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                        <input 
-                            id="password_confirm" 
-                            name="password_confirm" 
-                            type="password" 
-                            required 
-                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                            placeholder="Confirm your password"
-                        >
-                    </div>
-                </div>
-
-                <div class="flex items-start">
-                    <div class="flex items-center h-5">
-                        <input 
-                            id="terms" 
-                            name="terms" 
-                            type="checkbox" 
-                            required
-                            class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded cursor-pointer"
-                        >
-                    </div>
-                    <div class="ml-2 text-sm">
-                        <label for="terms" class="text-gray-600 cursor-pointer">
-                            I agree to the 
-                            <a href="#" class="text-purple-600 hover:text-purple-500 font-medium">Terms of Service</a> 
-                            and 
-                            <a href="#" class="text-purple-600 hover:text-purple-500 font-medium">Privacy Policy</a>
-                        </label>
-                    </div>
-                </div>
-
-                <div>
-                    <button 
-                        type="submit" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-200 transform hover:scale-[1.02]"
-                    >
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <svg class="h-5 w-5 text-purple-300 group-hover:text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </span>
-                        Create Account
-                    </button>
-                </div>
-
-                <div class="text-center mt-4">
-                    <p class="text-sm text-gray-600">
-                        Already have an account? 
-                        <a href="{% url 'login' %}" class="font-medium text-purple-600 hover:text-purple-500 transition duration-200">
-                            Sign in
-                        </a>
-                    </p>
-                </div>
-            </form>
+          <div class="flex gap-2">
+            <button type="button" id="next-btn"
+                    class="px-5 py-2.5 rounded-lg text-white font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+              Next
+            </button>
+            <button type="submit" id="submit-btn"
+                    class="hidden px-5 py-2.5 rounded-lg text-white font-semibold bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+              Create Account
+            </button>
+          </div>
         </div>
 
-        <div class="text-center">
-            <p class="text-sm text-white opacity-80">&copy; 2025 Automation Platform. All rights reserved.</p>
-        </div>
+        <p class="text-center text-sm text-gray-500 mt-4 md:mt-2">
+          Already have an account?
+          <a href="{% url 'login' %}" class="font-medium text-purple-600 hover:text-purple-500">Sign in</a>
+        </p>
+      </form>
     </div>
 
-    <script>
-        function checkPasswordStrength() {
-            const password = document.getElementById('password').value;
-            const strengthBar = document.getElementById('strength-bar');
-            const strengthText = document.getElementById('strength-text');
-            
-            let strength = 0;
-            let text = 'None';
-            let color = '#e5e7eb';
-            
-            if (password.length >= 8) strength++;
-            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-            if (password.match(/[0-9]/)) strength++;
-            if (password.match(/[^a-zA-Z0-9]/)) strength++;
-            
-            const width = (strength * 25);
-            
-            if (strength === 0) {
-                text = 'None';
-                color = '#e5e7eb';
-            } else if (strength === 1) {
-                text = 'Weak';
-                color = '#ef4444';
-            } else if (strength === 2) {
-                text = 'Fair';
-                color = '#f59e0b';
-            } else if (strength === 3) {
-                text = 'Good';
-                color = '#3b82f6';
-            } else {
-                text = 'Strong';
-                color = '#10b981';
-            }
-            
-            strengthBar.style.width = width + '%';
-            strengthBar.style.background = color;
-            strengthText.textContent = 'Password strength: ' + text;
-            strengthText.style.color = color;
+    <div class="text-center">
+      <p class="text-sm text-white/80">&copy; 2025 Automation Platform. All rights reserved.</p>
+    </div>
+  </div>
+
+  <script>
+    // --- Wizard Logic ---
+    const steps = ["step-1","step-2","step-3"];
+    let current = 0;
+
+    const progress = document.getElementById('progress');
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const dot1 = document.getElementById('dot-1');
+    const dot2 = document.getElementById('dot-2');
+    const dot3 = document.getElementById('dot-3');
+
+    function updateDots() {
+      [dot1,dot2,dot3].forEach((d,i)=>{
+        d.classList.remove('step-active','step-complete','step-pending');
+        if (i < current) d.classList.add('step-complete');
+        else if (i === current) d.classList.add('step-active');
+        else d.classList.add('step-pending');
+      });
+      progress.style.width = ((current+1)/steps.length*100) + '%';
+    }
+
+    function showStep(i){
+      steps.forEach((id, idx)=>{
+        document.getElementById(id).classList.toggle('hidden', idx !== i);
+      });
+      backBtn.disabled = i === 0;
+      nextBtn.classList.toggle('hidden', i === steps.length - 1);
+      submitBtn.classList.toggle('hidden', i !== steps.length - 1);
+      current = i;
+      updateDots();
+      // focus first input of step
+      const firstInput = document.querySelector(`#${steps[i]} input`);
+      if (firstInput) firstInput.focus({preventScroll:true});
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (validateCurrentStep()) showStep(Math.min(current+1, steps.length-1));
+    });
+
+    backBtn.addEventListener('click', () => showStep(Math.max(current-1, 0)));
+
+    // Keyboard: Enter -> Next (except on submit step)
+    document.getElementById('signup-form').addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter' && !e.shiftKey) {
+        if (current < steps.length - 1) {
+          e.preventDefault();
+          if (validateCurrentStep()) showStep(current+1);
         }
-    </script>
+      }
+    });
+
+    // --- Lightweight Validation per step ---
+    function validateCurrentStep(){
+      const fieldsByStep = {
+        0: ['first_name','last_name','email','phone_number','username'],
+        1: ['company_name','mc_number','number_of_trucks'],
+        2: ['password','password_confirm','terms']
+      };
+      const ids = fieldsByStep[current] || [];
+      let ok = true;
+      ids.forEach(id=>{
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === 'checkbox') {
+          if (!el.checked) ok = false;
+        } else if (!el.value.trim()) {
+          ok = false;
+          el.classList.add('ring-2','ring-red-400','border-transparent');
+          setTimeout(()=>el.classList.remove('ring-2','ring-red-400','border-transparent'),800);
+        } else if (id === 'mc_number' && !/^MC-\d{6,7}$/.test(el.value.trim())) {
+            ok = false;
+            el.classList.add('ring-2', 'ring-red-400', 'border-transparent');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-red-400', 'border-transparent'), 800);
+            
+            // Optional: Show inline message
+            const hint = el.nextElementSibling;
+            if (hint && hint.tagName.toLowerCase() === 'p') {
+              hint.textContent = 'Format must be MC- followed by 6–7 digits (e.g., MC-123456)';
+              hint.classList.add('text-red-600');
+              setTimeout(() => {
+                hint.textContent = 'Typically 6–7 digits (FMCSA MC#).';
+                hint.classList.remove('text-red-600');
+              }, 2000);
+            }
+          } else if (id === 'number_of_trucks' && Number(el.value) < 1) {
+          el.value = 1;
+        }
+      });
+
+      if (current === 2) {
+        const p = document.getElementById('password');
+        const c = document.getElementById('password_confirm');
+        const hint = document.getElementById('match-hint');
+        if (p.value !== c.value) {
+          ok = false;
+          hint.textContent = "Passwords do not match.";
+          hint.className = "text-xs mt-1 text-red-600";
+          c.classList.add('ring-2','ring-red-400','border-transparent');
+          setTimeout(()=>c.classList.remove('ring-2','ring-red-400','border-transparent'),800);
+        } else {
+          hint.textContent = "Looks good.";
+          hint.className = "text-xs mt-1 text-emerald-600";
+        }
+      }
+      return ok;
+    }
+
+    // --- Password Strength ---
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      const strengthBar = document.getElementById('strength-bar');
+      const strengthText = document.getElementById('strength-text');
+      let strength = 0, text = 'None', color = '#e5e7eb';
+
+      if (password.length >= 8) strength++;
+      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+      const width = (strength * 25);
+      if (strength === 0) { text='None'; color='#e5e7eb'; }
+      else if (strength === 1){ text='Weak'; color='#ef4444'; }
+      else if (strength === 2){ text='Fair'; color='#f59e0b'; }
+      else if (strength === 3){ text='Good'; color='#3b82f6'; }
+      else { text='Strong'; color='#10b981'; }
+
+      strengthBar.style.width = width + '%';
+      strengthBar.style.background = color;
+      strengthText.textContent = 'Password strength: ' + text;
+      strengthText.style.color = color;
+    }
+    window.checkPasswordStrength = checkPasswordStrength; // keep global for inline onkeyup
+
+    // Prevent negative truck numbers
+    document.getElementById('number_of_trucks')?.addEventListener('input', (e) => {
+      const v = parseInt(e.target.value || '0', 10);
+      if (v < 1) e.target.value = 1;
+    });
+
+    // Initialize
+    showStep(0);
+  </script>
 </body>
 </html>
-

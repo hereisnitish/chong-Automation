@@ -5,46 +5,85 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from .models import User, Dashboard, EmailFolder
-from django.db import IntegrityError
+from .models import User, Dashboard, EmailFolder, LogEntry
+from django.db import IntegrityError,transaction
 from django.db.models import Q
 import requests
 import json
 
 
+from django.contrib.auth import get_user_model
+from .models import UserData
+
+User = get_user_model()
+
 def signup_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    
+
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        username = request.POST.get('username')
-        phone_number = request.POST.get('phone_number')
-        password = request.POST.get('password')
-        password_confirm = request.POST.get('password_confirm')
-        
+        first_name = (request.POST.get('first_name') or '').strip()
+        last_name = (request.POST.get('last_name') or '').strip()
+        email = (request.POST.get('email') or '').strip().lower()
+        username = (request.POST.get('username') or '').strip()
+        phone_number = (request.POST.get('phone_number') or '').strip()
+        password = request.POST.get('password') or ''
+        password_confirm = request.POST.get('password_confirm') or ''
+
+        company_name = (request.POST.get('company_name') or '').strip()
+        mc_number_raw = (request.POST.get('mc_number') or '').strip()
+        number_of_trucks_raw = (request.POST.get('number_of_trucks') or '').strip()
+
+        # basic password check
         if password != password_confirm:
             messages.error(request, 'Passwords do not match.')
             return render(request, 'signup.html')
-        
+
+        # normalize MC format to MC-XXXXXX (accepts with/without MC-, any whitespace)
+        import re
+        mc_digits = ''.join(re.findall(r'\d', mc_number_raw))
+        mc_number = f"MC-{mc_digits}" if mc_digits else ''
+
+        # parse trucks as non-negative int
         try:
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                phone_number=phone_number
-            )
+            number_of_trucks = int(number_of_trucks_raw)
+            if number_of_trucks < 0:
+                number_of_trucks = 0
+        except (TypeError, ValueError):
+            number_of_trucks = 0
+
+        # Create user + related userdata atomically
+        try:
+            with transaction.atomic():
+                # since your User has USERNAME_FIELD='email', username can still be stored if you keep the field,
+                # but auth will use email for login.
+                user = User.objects.create_user(
+                    username=username,     # keep if your model still has username
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    phone_number=phone_number,
+                )
+
+                # create the related UserData row
+                UserData.objects.create(
+                    user=user,
+                    company_name=company_name or None,
+                    mc_number=mc_number or None,
+                    number_of_trucks=number_of_trucks,
+                    phone_number=phone_number or None,  # optional mirror
+                )
+
             login(request, user)
             messages.success(request, 'Account created successfully!')
             return redirect('dashboard')
+
         except IntegrityError:
+            # likely unique email/phone/username clash
             messages.error(request, 'Email, username, or phone number already exists.')
             return render(request, 'signup.html')
-    
+
     return render(request, 'signup.html')
 
 
@@ -81,19 +120,63 @@ def logout_view(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('login')
 
-
 @login_required(login_url='login')
 def dashboard_view(request):
-    dashboard_records = Dashboard.objects.filter(user=request.user)
-    
+    # Base queryset for this user
+    dashboard_qs = (
+        Dashboard.objects
+        .filter(user=request.user)
+        .select_related('user')     # keeps user handy
+        .order_by('-created_date')
+    )
+
+    # Pull the user's company info once
+    user_data = getattr(request.user, 'user_data', None)
+    company_name = getattr(user_data, 'company_name', None)
+    mc_number = getattr(user_data, 'mc_number', None)
+    number_of_trucks = getattr(user_data, 'number_of_trucks', None)
+
+    # Add light-weight attributes on each record so template can use {{ record.company_name }} etc.
+    # (No extra queries; these are just Python attrs)
+    records = list(dashboard_qs)
+    for r in records:
+        r.company_name = company_name
+        r.mc_number = mc_number
+        r.number_of_trucks = number_of_trucks
+
+    # Counts
+    total_records = len(records)
+    whatsapp_count = sum(1 for r in records if r.type == 'whatsapp')
+    gmail_count = sum(1 for r in records if r.type == 'gmail')
+    sms_count = sum(1 for r in records if r.type == 'sms')
+
+    # Distinct years for the Year filter (based on created_date)
+    years = (
+        Dashboard.objects
+        .filter(user=request.user)
+        .datetimes('created_date', 'year', order='DESC')
+    )
+    year_options = [d.year for d in years]  # e.g., [2025, 2024, ...]
+
+    total_clients = User.objects.filter(is_staff=False, is_superuser=False).count()
+
+    recent_logs = LogEntry.objects.filter(user=request.user).order_by('-created_at')[:50]
+
     context = {
-        'dashboard_records': dashboard_records,
-        'total_records': dashboard_records.count(),
-        'whatsapp_count': dashboard_records.filter(type='whatsapp').count(),
-        'gmail_count': dashboard_records.filter(type='gmail').count(),
-        'sms_count': dashboard_records.filter(type='sms').count(),
+        'dashboard_records': records,
+        'total_records': total_records,
+        'whatsapp_count': whatsapp_count,
+        'gmail_count': gmail_count,
+        'sms_count': sms_count,
+        'total_clients': total_clients,
+        'recent_logs': recent_logs,
+        # Expose company info in case you also want to show it in header/cards
+        'company_name': company_name,
+        'mc_number': mc_number,
+        'number_of_trucks': number_of_trucks,
+        # For filters (Year dropdown)
+        'year_options': year_options,
     }
-    
     return render(request, 'dashboard.html', context)
 
 
@@ -123,7 +206,7 @@ def create_dashboard_record(request):
                 'message': 'Invalid type. Must be: whatsapp, gmail, or sms'
             }, status=400)
         
-        user = User.objects.first()
+        user = User.objects.filter(is_superuser=True).first()
 
         # if user_email:
         #     try:
@@ -139,7 +222,7 @@ def create_dashboard_record(request):
         if not user:
             return JsonResponse({
                 'status': 'error',
-                'message': 'No user available. Please provide user_email or create a user first.'
+                'message': 'No admin user found. Please create an admin user first.'
             }, status=400)
         
         dashboard_record = Dashboard.objects.create(
@@ -149,6 +232,17 @@ def create_dashboard_record(request):
             type=record_type,
             google_drive_link=google_drive_link
         )
+        try:
+            LogEntry.objects.create(
+                user=user,
+                level='info',
+                event='dashboard_record_created',
+                message=f'Created {record_type} record for {email}',
+                related_model='Dashboard',
+                related_id=str(dashboard_record.id)
+            )
+        except Exception:
+            pass
         
         return JsonResponse({
             'status': 'success',

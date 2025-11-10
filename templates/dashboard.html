@@ -1,786 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - AutoFlow Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
-    <script>
-        (function(){
-            const pref = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const root = document.documentElement;
-            
-            if (pref === 'dark') {
-                root.classList.add('dark');
-            } else if (pref === 'light') {
-                root.classList.remove('dark');
-            } else if (prefersDark) {
-                root.classList.add('dark');
-            } else {
-                root.classList.remove('dark');
-            }
-        })();
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoFlow Dashboard — Professional</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { 
+      darkMode: 'class',
+      theme: {
+        extend: {
+          boxShadow: {
+            'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
+          }
         }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-            100% {
-                background-position: 1000px 0;
-            }
-        }
-        
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .animate-slideInRight {
-            animation: slideInRight 0.4s ease-out;
-        }
-        
-        .gradient-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-        }
-        
-        .gradient-mesh {
-            background: 
-                radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-                radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, rgba(217, 70, 239, 0.05) 0px, transparent 50%);
-        }
-        
-        .card-elevated {
-            box-shadow: 
-                0 1px 3px 0 rgba(0, 0, 0, 0.05),
-                0 1px 2px 0 rgba(0, 0, 0, 0.03);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-elevated:hover {
-            box-shadow: 
-                0 10px 25px -5px rgba(0, 0, 0, 0.08),
-                0 8px 10px -6px rgba(0, 0, 0, 0.04);
-            transform: translateY(-2px);
-        }
-        
-        .table-row-hover {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .table-row-hover:hover {
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
-            transform: scale(1.002);
-        }
-        
-        .badge-shimmer {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .badge-shimmer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 3s infinite;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .text-gradient {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .link-hover {
-            position: relative;
-        }
-        
-        .link-hover::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            transition: width 0.3s ease;
-        }
-        
-        .link-hover:hover::after {
-            width: 100%;
-        }
-
-        .no-data-illustration {
-            filter: drop-shadow(0 10px 25px rgba(99, 102, 241, 0.1));
-        }
-        .dark .glass-effect {
-            background: rgba(17, 24, 39, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .dark .card-elevated {
-            box-shadow: none;
-        }
-        .dark .table-row-hover:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-        :root { color-scheme: light dark; }
-    </style>
+      }
+    }
+  </script>
+  <script>
+    (function () {
+      const pref = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const root = document.documentElement;
+      if (pref === 'dark') root.classList.add('dark');
+      else if (pref === 'light') root.classList.remove('dark');
+      else if (prefersDark) root.classList.add('dark');
+      else root.classList.remove('dark');
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    @keyframes fadeInUp { 
+      from { opacity: 0; transform: translateY(12px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    @keyframes slideIn { 
+      from { opacity: 0; transform: translateX(-10px); } 
+      to { opacity: 1; transform: translateX(0); } 
+    }
+    
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .8; }
+    }
+    
+    .animate-fadeInUp { animation: fadeInUp 0.5s ease-out; }
+    .animate-slideIn { animation: slideIn 0.4s ease-out; }
+    
+    .gradient-primary { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-accent { 
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .gradient-success { 
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .glass { 
+      background: rgba(255, 255, 255, 0.95); 
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .glass { 
+      background: rgba(17, 24, 39, 0.85); 
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.12);
+    }
+    
+    .dark .card-hover:hover {
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.4);
+    }
+    
+    .icon-box {
+      transition: all 0.3s ease;
+    }
+    
+    .icon-box:hover {
+      transform: scale(1.05);
+    }
+    
+    .nav-btn {
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .nav-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 0 3px 3px 0;
+      transition: height 0.3s ease;
+    }
+    
+    .nav-btn.active::before {
+      height: 70%;
+    }
+    
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.3);
+      border-radius: 3px;
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.5);
+    }
+  </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 antialiased">
-    <div class="min-h-screen">
-        <header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 glass-effect">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16">
-                    <div class="flex items-center space-x-4 animate-slideInRight">
-                        <div class="relative">
-                            <div class="absolute inset-0 gradient-primary rounded-xl blur opacity-40"></div>
-                            <div class="relative h-10 w-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Dashboard</h1>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Automation Management</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center space-x-3">
-                        <div class="hidden sm:flex items-center space-x-3 px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-xl border border-gray-200 dark:border-gray-800">
-                            <div class="relative">
-                                <div class="absolute inset-0 gradient-primary rounded-full blur-sm opacity-40"></div>
-                                <div class="relative h-9 w-9 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                                    {{ user.first_name.0|upper|default:"U" }}{{ user.last_name.0|upper|default:"" }}
-                </div>
-            </div>
-                            <div class="pr-2">
-                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">{{ user.get_full_name|default:user.username }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight">{{ user.email }}</p>
-                    </div>
-                        </div>
-                        <button id="themeToggle" class="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
-                            <svg class="h-5 w-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0l-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                            </svg>
-                            <svg class="h-5 w-5 hidden dark:block" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                            </svg>
-                        </button>
-                        <a href="{% url 'logout' %}" class="group relative flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg">
-                            <div class="absolute inset-0 gradient-primary"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
-                            <svg class="relative h-4 w-4 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            <span class="relative z-10">Logout</span>
-                        </a>
-                    </div>
-                    </div>
-                </div>
-            </header>
-
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fadeInUp">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 card-elevated">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Records</p>
-                            <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-gray-100">{{ total_records }}</p>
-                        </div>
-                        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 card-elevated">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">WhatsApp</p>
-                            <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-gray-100">{{ whatsapp_count }}</p>
-                        </div>
-                        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 card-elevated">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Gmail</p>
-                            <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-gray-100">{{ gmail_count }}</p>
-                        </div>
-                        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 card-elevated">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">SMS</p>
-                            <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-gray-100">{{ sms_count }}</p>
-                        </div>
-                        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 card-elevated animate-fadeInUp overflow-hidden" style="animation-delay: 0.1s;">
-                <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-                            <div class="flex items-center justify-between">
-                                <div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Automation Records</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Monitor and manage your automation workflows</p>
-                                </div>
-                        <div class="flex items-center gap-3">
-                            <div class="hidden sm:flex items-center p-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                                <button class="typeTab px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white" data-type="">All</button>
-                                <button class="typeTab px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-700 dark:text-gray-300" data-type="whatsapp">WhatsApp</button>
-                                <button class="typeTab px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-700 dark:text-gray-300" data-type="gmail">Gmail</button>
-                                <button class="typeTab px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-700 dark:text-gray-300" data-type="sms">SMS</button>
-                            </div>
-                            <div class="hidden sm:flex items-center p-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" id="quickDateGroup">
-                                <button class="quickDate px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-700 dark:text-gray-300" data-range="today">Today</button>
-                                <button class="quickDate px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-700 dark:text-gray-300" data-range="7d">7d</button>
-                                <button class="quickDate px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-700 dark:text-gray-300" data-range="30d">30d</button>
-                                <button class="quickDate px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300" data-range="all">All</button>
-                            </div>
-                            <button id="exportCsv" class="inline-flex items-center space-x-2 px-3 py-2 text-xs font-semibold rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l4 4 4-4m-4-12v16M20 12a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
-                                <span>Export CSV</span>
-                            </button>
-                        </div>
-                    </div>
-                        </div>
-
-                {% if dashboard_records %}
-                <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-                    <div class="flex flex-wrap items-center gap-4">
-                        <div class="flex items-center space-x-2">
-                            <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filters</span>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-3 flex-1">
-                            <div class="relative">
-                                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">Contact Email</label>
-                                <div class="relative">
-                                    <input type="text" id="filterEmail" placeholder="Search email..." class="pl-10 pr-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 w-48">
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="relative">
-                                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">Date Range</label>
-                                <input type="date" id="filterStartDate" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600">
-                            </div>
-
-                            <div class="relative mt-5">
-                                <span class="text-gray-400 dark:text-gray-500 font-bold">to</span>
-                            </div>
-
-                            <div class="relative">
-                                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">End Date</label>
-                                <input type="date" id="filterEndDate" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600">
-                            </div>
-
-                            <div class="relative">
-                                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">Type</label>
-                                <select id="filterType" class="px-4 py-2 pr-10 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 appearance-none cursor-pointer">
-                                    <option value="">All Types</option>
-                                    <option value="whatsapp">WhatsApp</option>
-                                    <option value="gmail">Gmail</option>
-                                    <option value="sms">SMS</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mt-5">
-                                    <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <button id="clearFilters" class="mt-5 inline-flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all duration-200">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                <span>Clear</span>
-                            </button>
-                        </div>
-
-                        <div id="filterStats" class="ml-auto">
-                            <div class="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-lg border border-indigo-200 dark:border-gray-800">
-                                <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                <span class="text-xs font-bold text-indigo-700 dark:text-indigo-400">Showing: <span id="visibleCount">{{ dashboard_records.count }}</span></span>
-                            </div>
-                        </div>
-                    </div>
-                            </div>
-                <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="sticky top-0 z-10">
-                            <tr class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                                <th scope="col" class="px-8 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                        <span>Contact Email</span>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-8 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8h4m4 0h10M3 16h10" />
-                                        </svg>
-                                        <span>Phone</span>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-8 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                        </svg>
-                                        <span>Drive Link</span>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-8 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <span>Created Date</span>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-8 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                        </svg>
-                                        <span>Type</span>
-                                    </div>
-                                </th>
-                                        </tr>
-                                    </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-                            {% for record in dashboard_records %}
-                            <tr class="table-row-hover" data-type="{{ record.type }}" data-date="{{ record.created_date|date:'Y-m-d' }}" data-email="{{ record.email|lower }}" data-phone="{{ record.phone_number }}">
-                                <td class="px-8 py-5 whitespace-nowrap">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
-                                            <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                                        </svg>
-                                                    </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ record.email }}</p>
-                                    
-                                                    </div>
-                                                </div>
-                                            </td>
-                                <td class="px-8 py-5 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">{{ record.phone_number }}</span>
-                                </td>
-                                <td class="px-8 py-5 whitespace-nowrap">
-                                    {% if record.google_drive_link %}
-                                    <a href="{{ record.google_drive_link }}" target="_blank" class="group inline-flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-lg border border-indigo-200 transition-all duration-200">
-                                        <svg class="h-4 w-4 text-indigo-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                        </svg>
-                                        <span class="text-xs font-semibold text-indigo-700">Open Drive</span>
-                                    </a>
-                                    {% else %}
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        <svg class="h-3 w-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        No link
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-8 py-5 whitespace-nowrap">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-                                            <svg class="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ record.created_date|date:"M d, Y" }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ record.created_date|date:"h:i A" }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 whitespace-nowrap">
-                                    {% if record.type == 'whatsapp' %}
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm badge-shimmer">
-                                        <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                                        </svg>
-                                        WhatsApp
-                                    </span>
-                                    {% elif record.type == 'gmail' %}
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-sm badge-shimmer">
-                                        <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
-                                        </svg>
-                                        Gmail
-                                    </span>
-                                    {% elif record.type == 'sms' %}
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-sm badge-shimmer">
-                                        <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                                        </svg>
-                                        SMS
-                                    </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                            </div>
-
-                <div class="px-8 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                            Showing <span class="font-bold text-gray-700 dark:text-gray-200">{{ dashboard_records.count }}</span> of <span class="font-bold text-gray-700 dark:text-gray-200">{{ total_records }}</span> records
-                        </p>
-                        
-                                </div>
-                            </div>
-                {% else %}
-                <div class="text-center py-20 px-8">
-                    <div class="max-w-md mx-auto">
-                        <div class="relative inline-block no-data-illustration">
-                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-full blur-2xl opacity-40"></div>
-                            <svg class="relative h-32 w-32 mx-auto text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 class="mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">No Records Yet</h3>
-                        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Your automation records will appear here once you start sending data through the API endpoint. Get started by integrating with Make.com or other automation tools.</p>
-                        <div class="mt-6 inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-lg border border-indigo-200 dark:border-gray-800">
-                            <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-400">API endpoint ready at /api/create-record/</span>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                </div>
-            </main>
-
-        <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="text-center">
-                <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">© 2025 AutoFlow Platform. Engineered for excellence.</p>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+  <!-- Shell -->
+  <div class="min-h-dvh grid grid-cols-1 lg:grid-cols-[280px_1fr]">
+    <!-- Sidebar: Brand, Nav, Logs -->
+    <aside class="glass lg:h-dvh lg:sticky lg:top-0 border-r border-gray-200/70 dark:border-gray-800/70 shadow-lg">
+      <div class="p-5 flex items-center gap-3 border-b border-gray-200/50 dark:border-gray-800/50">
+        <div class="relative icon-box">
+          <div class="absolute inset-0 gradient-primary rounded-xl blur-md opacity-50"></div>
+          <div class="relative h-11 w-11 gradient-primary rounded-xl grid place-items-center text-white shadow-lg">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
         </div>
-        </footer>
-    </div>
+        <div class="flex-1">
+          <h1 class="text-lg font-black tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">AutoFlow</h1>
+          <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Automation Hub</p>
+        </div>
+        <button id="themeToggle" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow">
+          <svg class="h-[18px] w-[18px] block dark:hidden text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <svg class="h-[18px] w-[18px] hidden dark:block text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+        </button>
+      </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterEmail = document.getElementById('filterEmail');
-            const filterStartDate = document.getElementById('filterStartDate');
-            const filterEndDate = document.getElementById('filterEndDate');
-            const filterType = document.getElementById('filterType');
-            const clearFiltersBtn = document.getElementById('clearFilters');
-            const visibleCount = document.getElementById('visibleCount');
-            const tableRows = document.querySelectorAll('tbody tr.table-row-hover');
-            const themeToggle = document.getElementById('themeToggle');
-            const typeTabs = document.querySelectorAll('.typeTab');
-            const quickDateBtns = document.querySelectorAll('.quickDate');
-            const exportCsvBtn = document.getElementById('exportCsv');
-            
-            function applyFilters() {
-                let visibleRowsCount = 0;
-                const emailSearch = filterEmail.value.toLowerCase().trim();
-                const startDate = filterStartDate.value ? new Date(filterStartDate.value) : null;
-                const endDate = filterEndDate.value ? new Date(filterEndDate.value) : null;
-                const selectedType = filterType.value.toLowerCase();
-                
-                if (endDate) {
-                    endDate.setHours(23, 59, 59, 999);
-                }
-                
-                tableRows.forEach(row => {
-                    let showRow = true;
-                    
-                    if (emailSearch) {
-                        const rowEmail = row.getAttribute('data-email');
-                        if (!rowEmail.includes(emailSearch)) {
-                            showRow = false;
-                        }
-                    }
-                    
-                    if (showRow && selectedType) {
-                        const rowType = row.getAttribute('data-type');
-                        if (rowType !== selectedType) {
-                            showRow = false;
-                        }
-                    }
-                    
-                    if (showRow && (startDate || endDate)) {
-                        const rowDateStr = row.getAttribute('data-date');
-                        if (rowDateStr) {
-                            const rowDate = new Date(rowDateStr);
-                            if (startDate && rowDate < startDate) {
-                                showRow = false;
-                            }
-                            if (endDate && rowDate > endDate) {
-                                showRow = false;
-                            }
-                        }
-                    }
-                    
-                    if (showRow) {
-                        row.style.display = '';
-                        row.style.animation = 'fadeInUp 0.3s ease-out';
-                        visibleRowsCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-                
-                visibleCount.textContent = visibleRowsCount;
-                
-                if (visibleRowsCount === 0) {
-                    showNoResultsMessage();
-                } else {
-                    hideNoResultsMessage();
-                }
-            }
+      <!-- Nav -->
+      <nav class="px-4 py-4">
+        <div class="text-[10px] uppercase tracking-widest font-extrabold text-gray-400 dark:text-gray-500 px-2 mb-3">Navigation</div>
+        <div class="space-y-1">
+          <button data-page="insights" class="nav-btn active w-full inline-flex items-center gap-3 pl-4 pr-3 py-3 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 text-sm font-bold text-indigo-700 dark:text-indigo-300 shadow-sm">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <span>Insights</span>
+          </button>
+          <button data-page="table" class="nav-btn w-full inline-flex items-center gap-3 pl-4 pr-3 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800/50 text-sm font-semibold text-gray-700 dark:text-gray-300 transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <span>Data Table</span>
+          </button>
+          <button data-page="logs" class="nav-btn w-full inline-flex items-center gap-3 pl-4 pr-3 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800/50 text-sm font-semibold text-gray-700 dark:text-gray-300 transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>Activity Logs</span>
+          </button>
+        </div>
+      </nav>
 
-            function debounce(fn, delay) {
-                let t;
-                return function(...args) {
-                    clearTimeout(t);
-                    t = setTimeout(() => fn.apply(this, args), delay);
-                };
-            }
-            
-            function showNoResultsMessage() {
-                const existingMessage = document.getElementById('noResultsMessage');
-                if (existingMessage) return;
-                
-                const tbody = document.querySelector('tbody');
-                const noResultsRow = document.createElement('tr');
-                noResultsRow.id = 'noResultsMessage';
-                noResultsRow.innerHTML = `
-                    <td colspan="4" class="px-8 py-12 text-center">
-                        <div class="flex flex-col items-center space-y-3">
-                            <svg class="h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <h4 class="text-lg font-bold text-gray-900">No matching records</h4>
-                                <p class="text-sm text-gray-500 mt-1">Try adjusting your filters to see more results</p>
-                            </div>
-                        </div>
+      <!-- Collapsible Logs in sidebar -->
+      <div class="px-4 pb-4">
+        <div class="text-[10px] uppercase tracking-widest font-extrabold text-gray-400 dark:text-gray-500 px-2 mb-3 flex items-center gap-2">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Recent Activity</span>
+        </div>
+        <div id="sidebarLogs" class="space-y-2 max-h-[40vh] overflow-y-auto pr-1 scrollbar-custom">
+          {% if recent_logs %}
+            {% for log in recent_logs %}
+              <div class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 hover:shadow-sm transition-all card-hover">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      {% if log.level == 'error' %}
+                        <span class="badge bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          Error
+                        </span>
+                      {% elif log.level == 'warning' %}
+                        <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                          </svg>
+                          Warn
+                        </span>
+                      {% else %}
+                        <span class="badge bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          Info
+                        </span>
+                      {% endif %}
+                      <span class="text-[11px] font-bold truncate text-gray-700 dark:text-gray-300">{{ log.event }}</span>
+                    </div>
+                    {% if log.message %}
+                      <p class="mt-1.5 text-[11px] text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">{{ log.message }}</p>
+                    {% endif %}
+                  </div>
+                  <span class="text-[9px] text-gray-400 whitespace-nowrap font-medium">{{ log.created_at|date:"M d" }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="flex flex-col items-center justify-center py-8 text-center">
+              <svg class="h-10 w-10 text-gray-300 dark:text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p class="text-xs text-gray-400 dark:text-gray-600 font-medium">No activity yet</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="min-h-dvh flex flex-col">
+      <!-- Top bar -->
+      <header class="glass sticky top-0 z-40 border-b border-gray-200/70 dark:border-gray-800/70 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <h2 id="pageTitle" class="text-base font-black tracking-tight text-gray-900 dark:text-gray-100">Insights</h2>
+            <span class="hidden sm:inline-flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-900/50 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 text-indigo-700 dark:text-indigo-300 font-bold uppercase tracking-wider">
+              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              Automation Management
+            </span>
+          </div>
+          <div class="hidden sm:flex items-center gap-2">
+            <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-sm">
+              <div class="h-9 w-9 rounded-full gradient-primary grid place-items-center text-white text-xs font-extrabold shadow-sm ring-2 ring-white dark:ring-gray-900">
+                {{ user.first_name.0|upper|default:"U" }}{{ user.last_name.0|upper|default:"" }}
+              </div>
+              <div class="pr-1 leading-tight">
+                <p class="text-xs font-bold text-gray-900 dark:text-gray-100">{{ user.get_full_name|default:user.username }}</p>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{{ user.email }}</p>
+              </div>
+            </div>
+            <a href="{% url 'logout' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-red-950/20 hover:border-red-300 dark:hover:border-red-800 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-all group">
+              <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              <span class="text-sm font-bold">Logout</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content pages -->
+      <main class="flex-1">
+        <!-- TABLE PAGE -->
+        <section id="page-table" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeInUp">
+          <!-- Filters -->
+          <div class="mb-6 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-soft">
+            <div class="flex items-center gap-2 mb-4">
+              <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+              </svg>
+              <h3 class="text-sm font-extrabold text-gray-900 dark:text-gray-100">Filters</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Search</label>
+                <div class="relative">
+                  <input id="q" type="text" placeholder="Email, phone, company..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-transparent transition-all" />
+                  <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Year</label>
+                  <select id="filterYear" class="w-full py-2.5 px-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"><option value="">Any</option></select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Month</label>
+                  <select id="filterMonth" class="w-full py-2.5 px-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
+                    <option value="">Any</option>
+                    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+                    <option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option>
+                    <option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option>
+                    <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Type</label>
+                  <select id="filterType" class="w-full py-2.5 px-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
+                    <option value="">All</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="gmail">Gmail</option>
+                    <option value="sms">SMS</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex items-end gap-2">
+                <button id="clearFilters" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Clear
+                </button>
+                <button id="exportCsv" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 dark:border-indigo-800 dark:from-indigo-950/50 dark:to-purple-950/50 dark:text-indigo-300 hover:shadow-md transition-all">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  Export
+                </button>
+                <div class="ml-auto flex items-center gap-2 text-xs px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 font-semibold">
+                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  <span id="visibleCount">{{ dashboard_records.count }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table card -->
+          <div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-soft">
+            <div class="overflow-x-auto max-h-[65vh] overflow-y-auto scrollbar-custom">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                <thead class="sticky top-0 z-10 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                      <div class="flex items-center gap-2">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        Company
+                      </div>
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">MC #</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">Trucks</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                      <div class="flex items-center gap-2">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Email
+                      </div>
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                      <div class="flex items-center gap-2">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        Phone
+                      </div>
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                      <div class="flex items-center gap-2">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                        Drive
+                      </div>
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                      <div class="flex items-center gap-2">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Created
+                      </div>
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">Type</th>
+                  </tr>
+                </thead>
+                <tbody id="recordsBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                  {% for record in dashboard_records %}
+                  <tr class="row hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" data-type="{{ record.type }}" data-date="{{ record.created_date|date:'Y-m-d' }}" data-email="{{ record.email|lower }}" data-phone="{{ record.phone_number }}" data-company="{{ record.company_name|lower }}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">{{ record.company_name|default:"—" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">{{ record.mc_number|default:"—" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">{{ record.number_of_trucks|default:"—" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">{{ record.email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">{{ record.phone_number }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      {% if record.google_drive_link %}
+                        <a href="{{ record.google_drive_link }}" target="_blank" class="inline-flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold transition-colors">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                          </svg>
+                          Open
+                        </a>
+                      {% else %}
+                        <span class="text-gray-400">—</span>
+                      {% endif %}
                     </td>
-                `;
-                tbody.appendChild(noResultsRow);
-            }
-            
-            function hideNoResultsMessage() {
-                const existingMessage = document.getElementById('noResultsMessage');
-                if (existingMessage) {
-                    existingMessage.remove();
-                }
-            }
-            
-            function clearFilters() {
-                filterEmail.value = '';
-                filterStartDate.value = '';
-                filterEndDate.value = '';
-                filterType.value = '';
-                applyFilters();
-            }
-            
-            filterEmail.addEventListener('input', debounce(applyFilters, 150));
-            filterStartDate.addEventListener('change', applyFilters);
-            filterEndDate.addEventListener('change', applyFilters);
-            filterType.addEventListener('change', applyFilters);
-            clearFiltersBtn.addEventListener('click', clearFilters);
-            
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    const html = document.documentElement;
-                    const currentlyDark = html.classList.contains('dark');
-                    
-                    if (currentlyDark) {
-                        html.classList.remove('dark');
-                        localStorage.setItem('theme', 'light');
-                    } else {
-                        html.classList.add('dark');
-                        localStorage.setItem('theme', 'dark');
-                    }
-                });
-            }
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <div class="leading-tight">
+                        <div class="font-bold text-gray-900 dark:text-gray-100">{{ record.created_date|date:"M d, Y" }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ record.created_date|date:"h:i A" }}</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      {% if record.type == 'whatsapp' %}
+                        <span class="badge bg-[#25D366] text-white">
+                          <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                          </svg>
+                          WhatsApp
+                        </span>
+                      {% elif record.type == 'gmail' %}
+                        <span class="badge border-2 border-red-500 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30">
+                          <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                          </svg>
+                          Gmail
+                        </span>
+                      {% elif record.type == 'sms' %}
+                        <span class="badge gradient-success text-white">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                          </svg>
+                          SMS
+                        </span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-400">
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Showing <span class="font-bold text-gray-900 dark:text-gray-100">{{ dashboard_records.count }}</span> of <span class="font-bold text-gray-900 dark:text-gray-100">{{ total_records }}</span> records</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            function setActiveTypeTab(type) {
-                typeTabs.forEach(btn => {
-                    const isActive = btn.getAttribute('data-type') === type;
-                    btn.classList.toggle('bg-indigo-600', isActive);
-                    btn.classList.toggle('text-white', isActive);
-                    btn.classList.toggle('text-gray-700', !isActive);
-                    btn.classList.toggle('dark:text-gray-300', !isActive);
-                });
-            }
+        <!-- INSIGHTS PAGE -->
+        <section id="page-insights" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeInUp">
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 space-y-6">
+              <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-soft">
+                <div class="flex items-center gap-2 mb-6">
+                  <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                  <h3 class="text-base font-black text-gray-900 dark:text-gray-100">Key Performance Indicators</h3>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div class="stat-card p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-md transition-all card-hover">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="h-10 w-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Clients</p>
+                    <p class="mt-1.5 text-3xl font-black text-gray-900 dark:text-gray-100">{{ total_clients }}</p>
+                  </div>
+                  <div class="stat-card p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-md transition-all card-hover">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Records</p>
+                    <p class="mt-1.5 text-3xl font-black text-gray-900 dark:text-gray-100">{{ total_records }}</p>
+                  </div>
+                  <div class="stat-card p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-md transition-all card-hover">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">WhatsApp</p>
+                    <p class="mt-1.5 text-3xl font-black text-gray-900 dark:text-gray-100">{{ whatsapp_count }}</p>
+                  </div>
+                  <div class="stat-card p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-md transition-all card-hover">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Gmail</p>
+                    <p class="mt-1.5 text-3xl font-black text-gray-900 dark:text-gray-100">{{ gmail_count }}</p>
+                  </div>
+                </div>
+              </div>
 
-            typeTabs.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const t = btn.getAttribute('data-type') || '';
-                    filterType.value = t;
-                    setActiveTypeTab(t);
-                    applyFilters();
-                });
-            });
+              <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-soft">
+                <div class="flex items-center gap-2 mb-5">
+                  <svg class="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <h3 class="text-sm font-black text-gray-900 dark:text-gray-100">Uploads by Company</h3>
+                </div>
+                <div class="overflow-x-auto max-h-[50vh] overflow-y-auto scrollbar-custom">
+                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                    <thead class="sticky top-0 bg-gray-50 dark:bg-gray-900">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">Company</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-600 dark:text-gray-400">Count</th>
+                      </tr>
+                    </thead>
+                    <tbody id="companyCountsBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
 
-            function setQuickDate(range) {
-                const now = new Date();
-                let start = '';
-                let end = '';
-                if (range === 'today') {
-                    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    start = d.toISOString().slice(0,10);
-                    end = start;
-                } else if (range === '7d') {
-                    const d = new Date(now);
-                    d.setDate(d.getDate() - 6);
-                    start = d.toISOString().slice(0,10);
-                    end = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0,10);
-                } else if (range === '30d') {
-                    const d = new Date(now);
-                    d.setDate(d.getDate() - 29);
-                    start = d.toISOString().slice(0,10);
-                    end = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0,10);
-                }
-                filterStartDate.value = start;
-                filterEndDate.value = end;
-            }
+            <!-- Right rail: quick insights lists -->
+            <div class="space-y-6">
+              <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-soft">
+                <div class="flex items-center gap-2 mb-4">
+                  <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <h3 class="text-sm font-black text-gray-900 dark:text-gray-100">Year-wise</h3>
+                </div>
+                <div id="yearWiseList" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto scrollbar-custom"></div>
+              </div>
+              <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-soft">
+                <div class="flex items-center gap-2 mb-4">
+                  <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <h3 class="text-sm font-black text-gray-900 dark:text-gray-100">Month-wise</h3>
+                </div>
+                <div id="monthWiseList" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto scrollbar-custom"></div>
+              </div>
+              <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-soft">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h3 class="text-sm font-black text-gray-900 dark:text-gray-100">Date-wise</h3>
+                  </div>
+                </div>
+                <div id="dateWiseList" class="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto scrollbar-custom"></div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            function setActiveQuickDate(target) {
-                quickDateBtns.forEach(b => {
-                    const active = b === target;
-                    b.classList.toggle('bg-gray-100', active);
-                    b.classList.toggle('dark:bg-gray-800', active);
-                });
-            }
+        <!-- LOGS PAGE -->
+        <section id="page-logs" class="hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeInUp">
+          <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-soft">
+            <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+              <div class="flex items-center gap-2">
+                <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h3 class="text-base font-black text-gray-900 dark:text-gray-100">Activity Logs</h3>
+              </div>
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50">
+                <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                </svg>
+                <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">{{ recent_logs|length }} entries</span>
+              </div>
+            </div>
+            <div class="max-h-[70vh] overflow-y-auto scrollbar-custom divide-y divide-gray-100 dark:divide-gray-800">
+              {% if recent_logs %}
+                {% for log in recent_logs %}
+                <div class="px-6 py-5 flex items-start justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap mb-2">
+                      {% if log.level == 'error' %}
+                        <span class="badge bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          Error
+                        </span>
+                      {% elif log.level == 'warning' %}
+                        <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                          </svg>
+                          Warning
+                        </span>
+                      {% else %}
+                        <span class="badge bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          Info
+                        </span>
+                      {% endif %}
+                      <span class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ log.event }}</span>
+                    </div>
+                    {% if log.details %}
+                      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{ log.details }}</p>
+                    {% elif log.message %}
+                      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{ log.message }}</p>
+                    {% endif %}
+                    {% if log.source %}
+                      <div class="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="font-medium">Source: {{ log.source }}</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap font-medium">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ log.created_at|date:"M d, h:i A" }}
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="px-6 py-16 flex flex-col items-center justify-center text-center">
+                  <svg class="h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No logs available</p>
+                  <p class="mt-1 text-xs text-gray-400 dark:text-gray-600">Activity logs will appear here</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+      </main>
 
-            quickDateBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const range = btn.getAttribute('data-range');
-                    if (range === 'all') {
-                        filterStartDate.value = '';
-                        filterEndDate.value = '';
-                    } else {
-                        setQuickDate(range);
-                    }
-                    setActiveQuickDate(btn);
-                    applyFilters();
-                });
-            });
+      <footer class="px-4 sm:px-6 lg:px-8 py-6 text-center border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <div class="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+          <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span>© 2025 AutoFlow Platform — All rights reserved</span>
+        </div>
+      </footer>
+    </div>
+  </div>
 
-            function exportVisibleRowsToCsv() {
-                const headers = ['Email','Phone','Drive Link','Created Date','Time','Type'];
-                const rows = [];
-                document.querySelectorAll('tbody tr.table-row-hover').forEach(row => {
-                    if (row.style.display === 'none') return;
-                    const email = row.querySelector('td:nth-child(1) p')?.textContent?.trim() || '';
-                    const phone = row.getAttribute('data-phone') || '';
-                    const driveAnchor = row.querySelector('td:nth-child(3) a');
-                    const drive = driveAnchor ? driveAnchor.getAttribute('href') : '';
-                    const createdDate = row.querySelector('td:nth-child(4) p:nth-child(1)')?.textContent?.trim() || '';
-                    const createdTime = row.querySelector('td:nth-child(4) p:nth-child(2)')?.textContent?.trim() || '';
-                    const type = row.getAttribute('data-type') || '';
-                    rows.push([email, phone, drive, createdDate, createdTime, type]);
-                });
-                const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replaceAll('"','""') + '"').join(',')).join('\n');
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'automation-records.csv';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
+  <script>
+    // Theme toggle
+    document.getElementById('themeToggle')?.addEventListener('click', function(){
+      const html = document.documentElement; const isDark = html.classList.contains('dark');
+      if (isDark) { html.classList.remove('dark'); localStorage.setItem('theme','light'); }
+      else { html.classList.add('dark'); localStorage.setItem('theme','dark'); }
+    });
 
-            if (exportCsvBtn) {
-                exportCsvBtn.addEventListener('click', exportVisibleRowsToCsv);
-            }
+    // Page switching
+    const pages = {
+      table: document.getElementById('page-table'),
+      insights: document.getElementById('page-insights'),
+      logs: document.getElementById('page-logs')
+    };
+    const pageTitle = document.getElementById('pageTitle');
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.page;
+        Object.entries(pages).forEach(([k, el]) => el.classList.toggle('hidden', k !== target));
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          b.classList.remove('bg-gradient-to-r','from-indigo-50','to-purple-50','dark:from-indigo-950/50','dark:to-purple-950/50','text-indigo-700','dark:text-indigo-300','shadow-sm','active','font-bold');
+          b.classList.add('hover:bg-gray-100','dark:hover:bg-gray-800/50','text-gray-700','dark:text-gray-300','font-semibold');
         });
-    </script>
+        btn.classList.remove('hover:bg-gray-100','dark:hover:bg-gray-800/50','text-gray-700','dark:text-gray-300','font-semibold');
+        btn.classList.add('bg-gradient-to-r','from-indigo-50','to-purple-50','dark:from-indigo-950/50','dark:to-purple-950/50','text-indigo-700','dark:text-indigo-300','shadow-sm','active','font-bold');
+        pageTitle.textContent = btn.textContent.trim();
+      });
+    });
+
+    // Filters on table
+    const q = document.getElementById('q');
+    const filterYear = document.getElementById('filterYear');
+    const filterMonth = document.getElementById('filterMonth');
+    const filterType = document.getElementById('filterType');
+    const clearFilters = document.getElementById('clearFilters');
+    const visibleCount = document.getElementById('visibleCount');
+
+    // Populate years from data
+    (function populateYears(){
+      const years = new Set();
+      document.querySelectorAll('#recordsBody .row').forEach(r=>{ const d=r.dataset.date; if(d) years.add(d.slice(0,4)); });
+      const list = Array.from(years).sort().reverse();
+      list.forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; filterYear.appendChild(o); });
+    })();
+
+    function debounce(fn, delay){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), delay); } }
+
+    function applyFilters(){
+      const term = (q?.value||'').toLowerCase().trim();
+      const y = filterYear.value; const m = filterMonth.value; const t = filterType.value;
+      let shown = 0;
+      document.querySelectorAll('#recordsBody .row').forEach(row=>{
+        const hay = [row.dataset.email,row.dataset.phone,row.dataset.company].join(' ').toLowerCase();
+        const d = row.dataset.date || '';
+        const okTerm = !term || hay.includes(term);
+        const okYear = !y || d.slice(0,4)===y;
+        const okMonth = !m || d.slice(5,7)===m;
+        const okType = !t || row.dataset.type===t;
+        const show = okTerm && okYear && okMonth && okType;
+        row.style.display = show ? '' : 'none';
+        if(show) shown++;
+      });
+      if (visibleCount) visibleCount.textContent = shown;
+      updateAggregates();
+    }
+
+    q?.addEventListener('input', debounce(applyFilters, 150));
+    filterYear?.addEventListener('change', applyFilters);
+    filterMonth?.addEventListener('change', applyFilters);
+    filterType?.addEventListener('change', applyFilters);
+    clearFilters?.addEventListener('click', ()=>{ q.value=''; filterYear.value=''; filterMonth.value=''; filterType.value=''; applyFilters(); });
+
+    // Insights aggregations (re-uses visible table rows)
+    const yearWiseList = document.getElementById('yearWiseList');
+    const monthWiseList = document.getElementById('monthWiseList');
+    const dateWiseList = document.getElementById('dateWiseList');
+    const todayCountEl = document.getElementById('todayCount');
+    const companyCountsBody = document.getElementById('companyCountsBody');
+
+    function formatMonthLabel(ym){ const [y,m]=ym.split('-'); const d=new Date(parseInt(y), parseInt(m)-1, 1); return d.toLocaleString(undefined,{month:'short',year:'numeric'}); }
+
+    function renderList(container, data, formatter){ if(!container) return; container.innerHTML=''; data.forEach(([key,count])=>{
+      const wrap=document.createElement('div'); wrap.className='flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-sm transition-all card-hover';
+      const L=document.createElement('span'); L.className='text-xs font-bold text-gray-700 dark:text-gray-300'; L.textContent = formatter? formatter(key): key; 
+      const R=document.createElement('span'); R.className='text-sm font-black text-gray-900 dark:text-gray-100 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300'; R.textContent=String(count);
+      wrap.appendChild(L); wrap.appendChild(R); container.appendChild(wrap);
+    }); }
+
+    function renderCompanyTable(rows){ if(!companyCountsBody) return; companyCountsBody.innerHTML=''; rows.forEach(({name,count})=>{
+      const tr=document.createElement('tr'); tr.className='hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors';
+      const td1=document.createElement('td'); td1.className='px-4 py-3 text-sm font-bold text-gray-900 dark:text-gray-100'; td1.textContent=name||'—';
+      const td2=document.createElement('td'); td2.className='px-4 py-3 text-sm'; 
+      const countBadge=document.createElement('span'); countBadge.className='inline-flex items-center justify-center px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 font-black text-sm';
+      countBadge.textContent=String(count);
+      td2.appendChild(countBadge);
+      tr.appendChild(td1); tr.appendChild(td2); companyCountsBody.appendChild(tr);
+    }); }
+
+    function updateAggregates(){
+      const yearCounts=new Map(), monthCounts=new Map(), dateCounts=new Map(), companyCounts=new Map();
+      const today=new Date(); const todayStr=new Date(today.getFullYear(),today.getMonth(),today.getDate()).toISOString().slice(0,10);
+      let todayTotal=0;
+
+      document.querySelectorAll('#recordsBody .row').forEach(row=>{
+        if(row.style.display==='none') return;
+        const d=row.dataset.date||''; const companyKey=(row.dataset.company||'—').trim(); const companyName=row.querySelector('td:nth-child(1)')?.textContent?.trim()||companyKey||'—';
+        if(d.length>=10){ const y=d.slice(0,4), ym=d.slice(0,7), ymd=d.slice(0,10); yearCounts.set(y,(yearCounts.get(y)||0)+1); monthCounts.set(ym,(monthCounts.get(ym)||0)+1); dateCounts.set(ymd,(dateCounts.get(ymd)||0)+1); if(ymd===todayStr) todayTotal+=1; }
+        if(!companyCounts.has(companyKey)) companyCounts.set(companyKey,{name:companyName,count:0}); companyCounts.get(companyKey).count+=1;
+      });
+
+      const yearList=Array.from(yearCounts.entries()).sort((a,b)=>b[0].localeCompare(a[0]));
+      const monthList=Array.from(monthCounts.entries()).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12);
+      const dateList=Array.from(dateCounts.entries()).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,15);
+      renderList(yearWiseList, yearList);
+      renderList(monthWiseList, monthList, formatMonthLabel);
+      renderList(dateWiseList, dateList);
+      if(todayCountEl) todayCountEl.textContent=String(todayTotal);
+      const companyRows=Array.from(companyCounts.values()).sort((a,b)=>b.count-a.count).slice(0,50);
+      renderCompanyTable(companyRows);
+    }
+
+    // CSV (visible rows only)
+    document.getElementById('exportCsv')?.addEventListener('click', ()=>{
+      const headers=['Email','Company','Phone','Drive Link','Created Date','Time','Type'];
+      const rows=[]; document.querySelectorAll('#recordsBody .row').forEach(row=>{
+        if(row.style.display==='none') return;
+        const email=row.querySelector('td:nth-child(4)')?.textContent?.trim()||'';
+        const company=row.querySelector('td:nth-child(1)')?.textContent?.trim()||'';
+        const phone=row.querySelector('td:nth-child(5)')?.textContent?.trim()||'';
+        const driveAnchor=row.querySelector('td:nth-child(6) a'); const drive=driveAnchor? driveAnchor.getAttribute('href'):'';
+        const createdDate=row.querySelector('td:nth-child(7) div:first-child')?.textContent?.trim()||'';
+        const createdTime=row.querySelector('td:nth-child(7) .text-xs')?.textContent?.trim()||'';
+        const type=row.querySelector('td:nth-child(8) span')?.textContent?.trim()||'';
+        rows.push([email,company,phone,drive,createdDate,createdTime,type]);
+      });
+      const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='automation-records.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // Initial calculations
+    applyFilters();
+    updateAggregates();
+  </script>
 </body>
 </html>
