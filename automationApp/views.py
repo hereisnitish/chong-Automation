@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.core.paginator import Paginator
 from .models import User, Dashboard, EmailFolder, LogEntry
 from django.db import IntegrityError,transaction
 from django.db.models import Q
@@ -122,60 +123,85 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def dashboard_view(request):
-    # Base queryset for this user
-    dashboard_qs = (
-        Dashboard.objects
-        .filter(user=request.user)
-        .select_related('user')     # keeps user handy
-        .order_by('-created_date')
-    )
+    is_admin = request.user.is_staff or request.user.is_superuser
+    
+    if is_admin:
+        dashboard_qs = (
+            Dashboard.objects
+            .select_related('user')
+            .order_by('-created_date')
+        )
+        email_folders_qs = EmailFolder.objects.all().order_by('-folder_date', '-created_at')
+    else:
+        dashboard_qs = (
+            Dashboard.objects
+            .filter(user=request.user)
+            .select_related('user')
+            .order_by('-created_date')
+        )
+        email_folders_qs = EmailFolder.objects.filter(
+            Q(email=request.user.email) | Q(phone_number=request.user.phone_number)
+        ).order_by('-folder_date', '-created_at')
 
-    # Pull the user's company info once
     user_data = getattr(request.user, 'user_data', None)
     company_name = getattr(user_data, 'company_name', None)
     mc_number = getattr(user_data, 'mc_number', None)
     number_of_trucks = getattr(user_data, 'number_of_trucks', None)
 
-    # Add light-weight attributes on each record so template can use {{ record.company_name }} etc.
-    # (No extra queries; these are just Python attrs)
     records = list(dashboard_qs)
     for r in records:
-        r.company_name = company_name
-        r.mc_number = mc_number
-        r.number_of_trucks = number_of_trucks
+        if is_admin:
+            r_user_data = getattr(r.user, 'user_data', None)
+            r.company_name = getattr(r_user_data, 'company_name', None) if r_user_data else None
+            r.mc_number = getattr(r_user_data, 'mc_number', None) if r_user_data else None
+            r.number_of_trucks = getattr(r_user_data, 'number_of_trucks', None) if r_user_data else None
+        else:
+            r.company_name = company_name
+            r.mc_number = mc_number
+            r.number_of_trucks = number_of_trucks
 
-    # Counts
     total_records = len(records)
     whatsapp_count = sum(1 for r in records if r.type == 'whatsapp')
     gmail_count = sum(1 for r in records if r.type == 'gmail')
     sms_count = sum(1 for r in records if r.type == 'sms')
 
-    # Distinct years for the Year filter (based on created_date)
-    years = (
-        Dashboard.objects
-        .filter(user=request.user)
-        .datetimes('created_date', 'year', order='DESC')
-    )
-    year_options = [d.year for d in years]  # e.g., [2025, 2024, ...]
+    per_page = int(request.GET.get('per_page', 50))
+    if per_page not in [10, 50, 100]:
+        per_page = 50
+    
+    paginator = Paginator(records, per_page)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if is_admin:
+        years = Dashboard.objects.datetimes('created_date', 'year', order='DESC')
+    else:
+        years = Dashboard.objects.filter(user=request.user).datetimes('created_date', 'year', order='DESC')
+    year_options = [d.year for d in years]
 
     total_clients = User.objects.filter(is_staff=False, is_superuser=False).count()
 
     recent_logs = LogEntry.objects.all().order_by('-created_at')[:50]
 
+    email_folders = list(email_folders_qs)
+
     context = {
-        'dashboard_records': records,
+        'dashboard_records': page_obj,
+        'all_records': records,
         'total_records': total_records,
         'whatsapp_count': whatsapp_count,
         'gmail_count': gmail_count,
         'sms_count': sms_count,
         'total_clients': total_clients,
         'recent_logs': recent_logs,
-        # Expose company info in case you also want to show it in header/cards
+        'email_folders': email_folders,
+        'is_admin': is_admin,
         'company_name': company_name,
         'mc_number': mc_number,
         'number_of_trucks': number_of_trucks,
-        # For filters (Year dropdown)
         'year_options': year_options,
+        'page_obj': page_obj,
+        'per_page': per_page,
     }
     return render(request, 'dashboard.html', context)
 

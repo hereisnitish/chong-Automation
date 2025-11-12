@@ -17,7 +17,7 @@ class User(AbstractUser):
 class UserData(models.Model):
     user = models.OneToOneField(
         User, 
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name='user_data'
     )
     company_name = models.CharField(max_length=255, blank=True, null=True)
