@@ -232,7 +232,12 @@ def create_dashboard_record(request):
                 'message': 'Invalid type. Must be: whatsapp, gmail, or sms'
             }, status=400)
         
-        user = User.objects.filter(is_superuser=True).first()
+        if email:
+            user = User.objects.filter(email=email).first()
+        elif phone_number:
+            user = User.objects.filter(phone_number=phone_number).first()
+        else:
+            user = User.objects.filter(is_superuser=True).first()
 
         # if user_email:
         #     try:
