@@ -1,9 +1,11 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AutoFlow Dashboard</title>
+  <title>Trucking Pilot Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { 
@@ -174,19 +176,20 @@
   <div class="min-h-dvh grid grid-cols-1 lg:grid-cols-[280px_1fr]">
     <!-- Sidebar: Brand, Nav, Logs -->
     <aside class="glass lg:h-dvh lg:sticky lg:top-0 border-r border-gray-200/70 dark:border-gray-800/70 shadow-lg">
-      <div class="p-5 flex items-center gap-3 border-b border-gray-200/50 dark:border-gray-800/50">
+      <div class="p-5 flex items-center justify-between gap-3 border-b border-gray-200/50 dark:border-gray-800/50">
         <div class="relative icon-box">
-          <div class="absolute inset-0 gradient-primary rounded-xl blur-md opacity-50"></div>
-          <div class="relative h-11 w-11 gradient-primary rounded-xl grid place-items-center text-white shadow-lg">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-          </div>
+          {% comment %} <div class="absolute inset-0 gradient-primary rounded-xl blur-md opacity-50"></div> {% endcomment %}
+          <div class="">
+            <img src="{% static 'logo2.png' %}" alt="Logo" class="object-contain w-[130px]" />
         </div>
-        <div class="flex-1">
-          <h1 class="text-lg font-black tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">AutoFlow</h1>
-          <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Automation Hub</p>
         </div>
+        {% comment %} <div class="flex-1">
+          <h1 class="text-lg font-black tracking-tight text-black">
+            Trucking Pilot
+        </h1>
+        
+          
+        </div> {% endcomment %}
         <button id="themeToggle" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow">
           <svg class="h-[18px] w-[18px] block dark:hidden text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>

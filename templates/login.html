@@ -1,9 +1,12 @@
+{% load static %}
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Automation Dashboard</title>
+    <title>Login - Trucking Pilot Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes fadeIn {
@@ -27,11 +30,11 @@
     <div class="max-w-md w-full space-y-8 fade-in">
         <div class="glass-effect rounded-2xl p-8 md:p-10">
             <div class="text-center mb-8">
-                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
-                    <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                <div class="mx-auto h-20 w-20 bg-white rounded-full flex items-center justify-center shadow mb-4">
+                    <img src="{% static 'logo1.png' %}" alt="Logo" class="h-20 w-20 object-contain" />
                 </div>
+                
+                
                 <h2 class="text-3xl font-bold text-gray-900">Welcome Back</h2>
                 <p class="mt-2 text-sm text-gray-600">Sign in to access your automation dashboard</p>
             </div>
