@@ -329,42 +329,88 @@ def search_email_records(request):
         all_records = EmailFolder.objects.filter(Q(email=email) | Q(phone_number=phone_number))
 
         
-        email_exists = all_records.exists()
+        data_exists = all_records.exists()
         
-        if not email_exists:
+        # ---------------------------------------------------
+        # 🔍 ADDED: Fetch company_name and mc_number
+        # ---------------------------------------------------
+        company_name = None
+        mc_number = None
+
+        from .models import User, UserData
+
+        user_obj = None
+
+        # Match User by email
+        if email:
+            user_obj = User.objects.filter(email=email).select_related("user_data").first()
+
+        # If not found by email, try matching phone number inside UserData.phone_number
+        if not user_obj and phone_number:
+            user_obj = User.objects.filter(user_data__phone_number=phone_number).select_related("user_data").first()
+
+        if user_obj and hasattr(user_obj, "user_data") and user_obj.user_data:
+            company_name = user_obj.user_data.company_name
+            mc_number = user_obj.user_data.mc_number
+        else:
             return JsonResponse({
                 'status': 'success',
                 'email': email,
                 'phone_number': phone_number,
-                'exists': False,
+                'user_exists': False,
+                'data_exists': False,
                 'has_current_year': False,
                 'has_current_month': False,
                 'has_today': False,
+                'company_name': company_name,
+                'mc_number': mc_number,
+                'message': 'No user Found'
+            }, status=200)
+        # ---------------------------------------------------
+        
+        if not data_exists:
+            return JsonResponse({
+                'status': 'success',
+                'email': email,
+                'phone_number': phone_number,
+                'user_exists': True,
+                'data_exists': False,
+                'has_current_year': False,
+                'has_current_month': False,
+                'has_today': False,
+                'company_name': company_name,
+                'mc_number': mc_number,
                 'message': 'No folder records found for this email'
             }, status=200)
-        
+        company_name_mc_number_name = f"{company_name}_{mc_number}"
         year_records = all_records.filter(folder_year=current_year)
         month_records = year_records.filter(folder_month=current_month)
         today_records = month_records.filter(folder_date=current_date)
+        company_name_mc_number_name = all_records.filter(company_name_mc_number=company_name_mc_number_name)
         
         has_current_year = year_records.exists()
         has_current_month = month_records.exists()
         has_today = today_records.exists()
+        has_company_name_mc_number_name = company_name_mc_number_name.exists()
         
         response_data = {
             'status': 'success',
             'email': email,
             'phone_number': phone_number,
-            'exists': True,
+            'user_exists': True,
+            'data_exists': True,
             'has_current_year': has_current_year,
             'has_current_month': has_current_month,
+            'has_company_name_mc_number_name': has_company_name_mc_number_name,
             'has_today': has_today,
+            'company_name': company_name,
+            'mc_number': mc_number,
             'message': 'Folder records found for this email'
         }
         
         latest_record = all_records.first()
         if latest_record:
-            response_data['email_folder_id'] = latest_record.email_folder_id
+            response_data['company_name_folder_id'] = latest_record.company_name_folder_id
         
         if has_current_year:
             year_record = year_records.first()
@@ -377,6 +423,10 @@ def search_email_records(request):
         if has_today:
             today_record = today_records.first()
             response_data['date_folder_id'] = today_record.date_folder_id
+        
+        if has_company_name_mc_number_name:
+            company_name_mc_number_name_record = company_name_mc_number_name.first()
+            response_data['company_name_folder_id'] = company_name_mc_number_name_record.company_name_folder_id
         
         return JsonResponse(response_data, status=200)
         
@@ -402,7 +452,7 @@ def create_email_folder(request):
             data = request.POST
         
         email = data.get('email')
-        email_folder_id = data.get('email_folder_id')
+        company_name_folder_id = data.get('company_name_folder_id')
         year_folder_id = data.get('year_folder_id')
         month_folder_id = data.get('month_folder_id')
         date_folder_id = data.get('date_folder_id')
@@ -410,11 +460,12 @@ def create_email_folder(request):
         folder_month = data.get('folder_month')
         folder_date = data.get('folder_date')
         phone_number = data.get('phone_number')
+        company_name_mc_number = data.get('company_name_mc_number')
         
-        if not all([email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date]):
+        if not all([company_name_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date]):
             return JsonResponse({
                 'status': 'error',
-                'message': 'Missing required fields: email, email_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date'
+                'message': 'Missing required fields: email, company_name_folder_id, year_folder_id, month_folder_id, date_folder_id, folder_year, folder_month, folder_date'
             }, status=400)
         
         from datetime import datetime
@@ -432,7 +483,8 @@ def create_email_folder(request):
         email_folder = EmailFolder.objects.create(
             email=email,
             phone_number=phone_number,
-            email_folder_id=email_folder_id,
+            company_name_folder_id=company_name_folder_id,
+            company_name_mc_number=company_name_mc_number,
             year_folder_id=year_folder_id,
             month_folder_id=month_folder_id,
             date_folder_id=date_folder_id,
@@ -447,7 +499,7 @@ def create_email_folder(request):
             'data': {
                 'id': email_folder.id,
                 'email': email_folder.email,
-                'email_folder_id': email_folder.email_folder_id,
+                'company_name_folder_id': email_folder.company_name_folder_id,
                 'year_folder_id': email_folder.year_folder_id,
                 'month_folder_id': email_folder.month_folder_id,
                 'date_folder_id': email_folder.date_folder_id,

@@ -56,7 +56,8 @@ class Dashboard(models.Model):
 class EmailFolder(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=15)
-    email_folder_id = models.CharField(max_length=255)
+    company_name_folder_id = models.CharField(max_length=255)
+    company_name_mc_number = models.CharField(max_length=255, blank=True, null=True)
     year_folder_id = models.CharField(max_length=255)
     month_folder_id = models.CharField(max_length=255)
     date_folder_id = models.CharField(max_length=255)

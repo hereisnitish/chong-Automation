@@ -114,9 +114,9 @@ class DashboardAdmin(admin.ModelAdmin):
 # ---------- EmailFolder Admin ----------
 @admin.register(EmailFolder)
 class EmailFolderAdmin(admin.ModelAdmin):
-    list_display = ['email', 'folder_date', 'folder_year', 'folder_month', 'email_folder_id', 'created_at']
+    list_display = ['email', 'folder_date', 'folder_year', 'folder_month', 'company_name_folder_id', 'created_at']
     list_filter = ['folder_year', 'folder_month', 'created_at']
-    search_fields = ['email', 'email_folder_id', 'year_folder_id', 'month_folder_id', 'date_folder_id']
+    search_fields = ['email', 'company_name_folder_id', 'year_folder_id', 'month_folder_id', 'date_folder_id']
     readonly_fields = ['created_at', 'updated_at']
     ordering = ['-folder_date']
     date_hierarchy = 'folder_date'
