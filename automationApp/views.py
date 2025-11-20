@@ -236,7 +236,8 @@ def create_dashboard_record(request):
             user = User.objects.filter(email=email).first()
         elif phone_number:
             user = User.objects.filter(phone_number=phone_number).first()
-        else:
+        # Fallback to superuser
+        if not user:
             user = User.objects.filter(is_superuser=True).first()
 
         # if user_email:
