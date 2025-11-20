@@ -379,6 +379,7 @@ def search_email_records(request):
                 'has_current_month': False,
                 'has_today': False,
                 'company_name': company_name,
+                'length_of_today_records': 1,
                 'mc_number': mc_number,
                 'message': 'No folder records found for this email'
             }, status=200)
@@ -392,6 +393,7 @@ def search_email_records(request):
         has_current_month = month_records.exists()
         has_today = today_records.exists()
         has_company_name_mc_number_name = company_name_mc_number_name.exists()
+        length_of_today_records = len(today_records) +1
         
         response_data = {
             'status': 'success',
@@ -405,6 +407,7 @@ def search_email_records(request):
             'has_today': has_today,
             'company_name': company_name,
             'mc_number': mc_number,
+            'length_of_today_records': length_of_today_records,
             'message': 'Folder records found for this email'
         }
         
