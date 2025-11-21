@@ -315,9 +315,7 @@ def search_email_records(request):
             phone_number = data.get('phone_number')
         else:
             email = request.GET.get('email')
-        
-        
-        
+
         from datetime import datetime
         from django.utils import timezone
         
@@ -328,6 +326,7 @@ def search_email_records(request):
         all_records = EmailFolder.objects.all()
         user_records = None
         
+        print(f"Email: {email}, Phone Number: {phone_number}")
         if email:
             user_records = EmailFolder.objects.filter(email=email)
         elif phone_number:
@@ -397,13 +396,15 @@ def search_email_records(request):
                 'message': 'No folder records found for this email',
                 "has_company_name_mc_number_name":False
             }, status=200)
+
         company_name_mc_number_name = f"{company_name}_{mc_number}"
-        year_records = all_records.filter(folder_year=current_year)
+        # year_records = all_records.filter(folder_year=current_year)
+
         month_records = user_records.filter(folder_month=current_month)
         today_records = user_records.filter(folder_date=current_date)
         company_name_mc_number_name = all_records.filter(company_name_mc_number=company_name_mc_number_name)
         
-        has_current_year = year_records.exists()
+        # has_current_year = year_records.exists()
         has_current_month = month_records.exists()
         has_today = today_records.exists()
         has_company_name_mc_number_name = company_name_mc_number_name.exists()
