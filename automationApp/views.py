@@ -325,12 +325,22 @@ def search_email_records(request):
         current_year = now.year
         current_month = now.month
         current_date = now.date()
+        all_records = EmailFolder.objects.all()
+        user_records = None
         
-
-        all_records = EmailFolder.objects.filter(Q(email=email) | Q(phone_number=phone_number))
-
+        if email:
+            user_records = EmailFolder.objects.filter(email=email)
+        elif phone_number:
+            user_records = EmailFolder.objects.filter(phone_number=phone_number)
         
-        data_exists = all_records.exists()
+        data_exists = user_records.exists()
+
+        year_records = all_records.filter(folder_year=current_year)
+        has_current_year = year_records.exists()
+        year_folder_id = None
+        if has_current_year:
+            year_record = year_records.first()
+            year_folder_id = year_record.year_folder_id
         
         # ---------------------------------------------------
         # 🔍 ADDED: Fetch company_name and mc_number
@@ -360,7 +370,8 @@ def search_email_records(request):
                 'phone_number': phone_number,
                 'user_exists': False,
                 'data_exists': False,
-                'has_current_year': False,
+                'has_current_year': has_current_year,
+                "year_folder_id":year_folder_id,
                 'has_current_month': False,
                 'has_today': False,
                 'company_name': company_name,
@@ -376,18 +387,20 @@ def search_email_records(request):
                 'phone_number': phone_number,
                 'user_exists': True,
                 'data_exists': False,
-                'has_current_year': False,
+                'has_current_year': has_current_year,
+                "year_folder_id":year_folder_id,
                 'has_current_month': False,
                 'has_today': False,
                 'company_name': company_name,
                 'length_of_today_records': 1,
                 'mc_number': mc_number,
-                'message': 'No folder records found for this email'
+                'message': 'No folder records found for this email',
+                "has_company_name_mc_number_name":False
             }, status=200)
         company_name_mc_number_name = f"{company_name}_{mc_number}"
         year_records = all_records.filter(folder_year=current_year)
-        month_records = year_records.filter(folder_month=current_month)
-        today_records = month_records.filter(folder_date=current_date)
+        month_records = user_records.filter(folder_month=current_month)
+        today_records = user_records.filter(folder_date=current_date)
         company_name_mc_number_name = all_records.filter(company_name_mc_number=company_name_mc_number_name)
         
         has_current_year = year_records.exists()
@@ -403,6 +416,7 @@ def search_email_records(request):
             'user_exists': True,
             'data_exists': True,
             'has_current_year': has_current_year,
+            "year_folder_id":year_folder_id,
             'has_current_month': has_current_month,
             'has_company_name_mc_number_name': has_company_name_mc_number_name,
             'has_today': has_today,
@@ -415,10 +429,6 @@ def search_email_records(request):
         latest_record = all_records.first()
         if latest_record:
             response_data['company_name_folder_id'] = latest_record.company_name_folder_id
-        
-        if has_current_year:
-            year_record = year_records.first()
-            response_data['year_folder_id'] = year_record.year_folder_id
         
         if has_current_month:
             month_record = month_records.first()
