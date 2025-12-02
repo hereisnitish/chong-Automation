@@ -128,3 +128,20 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'automationApp.User'
+
+# ----------------------------------
+# Email Configuration (SendGrid)
+# ----------------------------------
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# SendGrid specifically requires the username to be the string 'apikey'
+EMAIL_HOST_USER = 'apikey' 
+
+# The actual password is the API Key string starting with "SG."
+EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+
+# The default address that emails appear to come from
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')

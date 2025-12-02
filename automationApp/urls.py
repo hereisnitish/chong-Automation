@@ -11,4 +11,6 @@ urlpatterns = [
     path('api/create-email-folder/', views.create_email_folder, name='create_email_folder'),
     path('api/send-to-make-webhook/', views.send_to_make_webhook, name='send_to_make_webhook'),
     path('api/create-make-log-entry/', views.create_make_log_entry, name='create_make_log_entry'),
+    path('api/create-lead-record/', views.create_lead_record, name='create_lead_record'),
+    
 ]
