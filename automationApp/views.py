@@ -14,10 +14,14 @@ import json
 import threading
 import logging
 from django.urls import reverse
-
+import os
+from django.conf import settings
 
 from django.contrib.auth import get_user_model
 from .models import UserData
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 User = get_user_model()
 
@@ -665,8 +669,7 @@ def create_lead_record(request):
             status=status
         )
 
-        #---Email Notification ---
-        # Prepare email data in main thread to ensure request context is available
+        # --- Email Notification  ---
         try:
             admin_relative_url = reverse('admin:automationApp_lead_changelist')
             admin_full_link = request.build_absolute_uri(admin_relative_url)
@@ -691,6 +694,7 @@ def create_lead_record(request):
                 # Define a wrapper to send email asynchronously
                 def send_email_thread(subj, msg, from_addr, recipients):
                     try:
+                        from django.core.mail import send_mail # Import send_mail inside thread or ensure global import 
                         send_mail(
                             subject=subj,
                             message=msg,
