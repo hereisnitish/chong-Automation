@@ -11,6 +11,9 @@ from django.db import IntegrityError,transaction
 from django.db.models import Q
 import requests
 import json
+import threading
+import logging
+from django.urls import reverse
 
 
 from django.contrib.auth import get_user_model
@@ -665,7 +668,7 @@ def create_lead_record(request):
         #---Email Notification ---
         # Prepare email data in main thread to ensure request context is available
         try:
-            admin_relative_url = reverse('admin:leads_lead_changelist')
+            admin_relative_url = reverse('admin:automationApp_lead_changelist')
             admin_full_link = request.build_absolute_uri(admin_relative_url)
 
             subject = f"New Lead Received: {lead.full_name}"
