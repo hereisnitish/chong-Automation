@@ -692,26 +692,28 @@ def create_lead_record(request):
                 from_email = settings.DEFAULT_FROM_EMAIL
                 
                 # Define a wrapper to send email asynchronously
-                def send_email_thread(subj, msg, from_addr, recipients):
-                    try:
-                        from django.core.mail import send_mail # Import send_mail inside thread or ensure global import 
-                        send_mail(
-                            subject=subj,
-                            message=msg,
-                            from_email=from_addr, 
-                            recipient_list=recipients,
-                            fail_silently=False 
-                        )
-                    except Exception as e:
-                        logger.error(f"Error sending lead notification email in background: {e}")
-
-                # Use threading to prevent blocking the response
+                # def send_email_thread(subject, message, from_email, recipient_list):
+                print(f"From {from_email}, recipient: {recipient_list}, message: {message}")
                 logger.info(f"From {from_email}, recipient: {recipient_list}, message: {message}")
-                email_thread = threading.Thread(
-                    target=send_email_thread, 
-                    args=(subject, message, from_email, recipient_list)
-                )
-                email_thread.start()
+                try:
+                    from django.core.mail import send_mail # Import send_mail inside thread or ensure global import 
+                    send_mail(
+                        subject=subject,
+                        message=message,
+                        from_email=from_email, 
+                        recipient_list=recipient_list,
+                        fail_silently=False 
+                    )
+                except Exception as e:
+                    print(f"Error: {e}")
+                    logger.error(f"Error sending lead notification email in background: {e}")
+
+                
+                # email_thread = threading.Thread(
+                #     target=send_email_thread, 
+                #     args=(subject, message, from_email, recipient_list)
+                # )
+                # email_thread.start()
             else:
                 logger.warning("LEAD_NOTIFICATION_RECIPIENT_EMAIL not set in .env")
 
