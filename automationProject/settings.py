@@ -133,7 +133,7 @@ AUTH_USER_MODEL = 'automationApp.User'
 # Email Configuration (Gmail SMTP)
 # ----------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
