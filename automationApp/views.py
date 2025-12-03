@@ -706,6 +706,7 @@ def create_lead_record(request):
                         logger.error(f"Error sending lead notification email in background: {e}")
 
                 # Use threading to prevent blocking the response
+                logger.info(f"From {from_email}, recipient: {recipient_list}, message: {message}")
                 email_thread = threading.Thread(
                     target=send_email_thread, 
                     args=(subject, message, from_email, recipient_list)
