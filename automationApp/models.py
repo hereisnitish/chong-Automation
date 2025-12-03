@@ -103,10 +103,10 @@ class Lead(models.Model):
     ]
 
     HELP_NEEDED_CHOICES = [
-        ('COMPLIANCE', 'Compliance & Permits'),
-        ('BOOKKEEPING', 'Bookkeeping & Taxes'),
-        ('GROWTH', 'Business growth'),
-        ('EVERYTHING', 'Everything'),
+        ('compliance', 'Compliance & Permits'),
+        ('bookkeeping', 'Bookkeeping & Taxes'),
+        ('growth', 'Business growth'),
+        ('all', 'Everything'), 
     ]
 
     full_name = models.CharField(max_length=255)
@@ -119,7 +119,7 @@ class Lead(models.Model):
     help_needed = models.CharField(
         max_length=50, 
         choices=HELP_NEEDED_CHOICES,
-        default='EVERYTHING',
+        default='all',
         help_text="Area where assistance is required"
     )
     

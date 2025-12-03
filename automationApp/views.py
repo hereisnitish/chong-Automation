@@ -646,13 +646,14 @@ def create_lead_record(request):
         else:
             data = request.POST
 
-        full_name = data.get('full_name')
-        company_name = data.get('company_name')
-        mc_number = data.get('mc_number')
+        full_name = data.get('fullName')
+        company_name = data.get('companyName')
+        mc_number = data.get('mcNumber')
         phone = data.get('phone')
         email = data.get('email')
-        truck_count = data.get('truck_count')
-        help_needed = data.get('help_needed', 'EVERYTHING')
+        truck_count = data.get('truckCount')
+        help_needed = data.get('helpNeeded', 'all')
+        
         status = data.get('status', 'PENDING')
 
         if not all([full_name, phone, email]):
