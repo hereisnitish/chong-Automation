@@ -22,6 +22,9 @@ from .models import UserData
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+from dotenv import load_dotenv
+
+load_dotenv()
 
 User = get_user_model()
 
