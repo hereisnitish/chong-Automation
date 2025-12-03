@@ -6,11 +6,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
-from .models import User, Dashboard, EmailFolder, LogEntry
+from .models import User, Dashboard, EmailFolder, LogEntry, Lead
 from django.db import IntegrityError,transaction
 from django.db.models import Q
 import requests
 import json
+import threading
+import logging
+from django.urls import reverse
 
 
 from django.contrib.auth import get_user_model
@@ -626,4 +629,111 @@ def create_make_log_entry(request):
             'status': 'error',
             'message': str(e)
         }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_lead_record(request):
+    try:
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        full_name = data.get('full_name')
+        company_name = data.get('company_name')
+        mc_number = data.get('mc_number')
+        phone = data.get('phone')
+        email = data.get('email')
+        truck_count = data.get('truck_count')
+        help_needed = data.get('help_needed', 'EVERYTHING')
+        status = data.get('status', 'PENDING')
+
+        if not all([full_name, phone, email]):
+             return JsonResponse({
+                'status': 'error',
+                'message': 'Missing required fields: full_name, phone, email'
+            }, status=400)
+
+        lead = Lead.objects.create(
+            full_name=full_name,
+            company_name=company_name,
+            mc_number=mc_number,
+            phone=phone,
+            email=email,
+            truck_count=truck_count,
+            help_needed=help_needed,
+            status=status
+        )
+
+        #---Email Notification ---
+        # Prepare email data in main thread to ensure request context is available
+        try:
+            admin_relative_url = reverse('admin:automationApp_lead_changelist')
+            admin_full_link = request.build_absolute_uri(admin_relative_url)
+
+            subject = f"New Lead Received: {lead.full_name}"
+            message = (
+                f"A new lead has been submitted.\n\n"
+                f"Name: {lead.full_name}\n"
+                f"Company: {lead.company_name or 'N/A'}\n"
+                f"Phone: {lead.phone}\n"
+                f"Help Needed: {lead.help_needed}\n\n"
+                f"Click the link below to view all leads in the Admin Panel:\n"
+                f"{admin_full_link}"
+            )
+
+            recipient_email = os.environ.get('LEAD_NOTIFICATION_RECIPIENT_EMAIL')
+
+            if recipient_email:
+                recipient_list = [recipient_email]
+                from_email = settings.DEFAULT_FROM_EMAIL
+                
+                # Define a wrapper to send email asynchronously
+                def send_email_thread(subj, msg, from_addr, recipients):
+                    try:
+                        send_mail(
+                            subject=subj,
+                            message=msg,
+                            from_email=from_addr, 
+                            recipient_list=recipients,
+                            fail_silently=False 
+                        )
+                    except Exception as e:
+                        logger.error(f"Error sending lead notification email in background: {e}")
+
+                # Use threading to prevent blocking the response
+                email_thread = threading.Thread(
+                    target=send_email_thread, 
+                    args=(subject, message, from_email, recipient_list)
+                )
+                email_thread.start()
+            else:
+                logger.warning("LEAD_NOTIFICATION_RECIPIENT_EMAIL not set in .env")
+
+        except Exception as e:
+            logger.error(f"Error preparing lead notification email: {e}")
+        # ---  ---
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Lead created successfully',
+            'data': {
+                'id': lead.id,
+                'full_name': lead.full_name,
+                'email': lead.email,
+                'status': lead.status,
+                'created_at': lead.created_at.isoformat()
+            }
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON format'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)        
 

@@ -94,3 +94,44 @@ class LogEntry(models.Model):
     def __str__(self):
         return f"[{self.level.upper()}] {self.event} ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')})"
 
+
+class Lead(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('COMMUNICATED', 'Communicated'),
+        ('COMPLETED', 'Completed'),
+    ]
+
+    HELP_NEEDED_CHOICES = [
+        ('COMPLIANCE', 'Compliance & Permits'),
+        ('BOOKKEEPING', 'Bookkeeping & Taxes'),
+        ('GROWTH', 'Business growth'),
+        ('EVERYTHING', 'Everything'),
+    ]
+
+    full_name = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=255, blank=True, null=True)
+    mc_number = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    truck_count = models.CharField(max_length=50, blank=True, null=True)
+    
+    help_needed = models.CharField(
+        max_length=50, 
+        choices=HELP_NEEDED_CHOICES,
+        default='EVERYTHING',
+        help_text="Area where assistance is required"
+    )
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Lead"
+        verbose_name_plural = "Leads"
+
+    def __str__(self):
+        return f"{self.full_name} - {self.company_name or 'No Company'} - {self.status}"

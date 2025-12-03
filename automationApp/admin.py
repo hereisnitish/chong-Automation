@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth import get_user_model
-from .models import Dashboard, EmailFolder, UserData, LogEntry   # <-- import your new model
+from .models import Dashboard, EmailFolder, UserData, LogEntry, Lead  # <-- import your new model
 
 User = get_user_model()
 
@@ -129,3 +129,11 @@ class LogEntryAdmin(admin.ModelAdmin):
     search_fields = ['event', 'details', 'user__email']
     readonly_fields = ['created_at']
     ordering = ['-created_at']
+
+@admin.register(Lead)
+class LeadAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'company_name', 'phone', 'email', 'status', 'created_at')
+    list_filter = ('status', 'help_needed', 'created_at')
+    search_fields = ('full_name', 'email', 'phone', 'company_name', 'mc_number')
+    readonly_fields = ('created_at', 'updated_at')
+    ordering = ('-created_at',)    
