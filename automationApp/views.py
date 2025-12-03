@@ -685,7 +685,7 @@ def create_lead_record(request):
                 f"{admin_full_link}"
             )
 
-            recipient_email = os.environ.get('LEAD_NOTIFICATION_RECIPIENT_EMAIL')
+            recipient_email = os.environ.get('LEAD_NOTIFICATION_RECIPIENT_EMAIL', "truckingpilot1@gmail.com")
 
             if recipient_email:
                 recipient_list = [recipient_email]
